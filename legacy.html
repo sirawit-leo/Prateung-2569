@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Farm Prateung v7.4 — Complete Diagnostic Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#F7F3EE;--card:#FFF;--c2:#FAF6F2;--bd:#E1BEA0;--tx:#3D2B1F;--mu:#AA7C64;--rs:#D48883;--sn:#EFD9BD;--gd:#5a8c3a;--wn:#c8924a;--bd2:#b85c52;--si:#7A3D2E;--in:#4a7c9e}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Sarabun',sans-serif;font-size:13px;background:var(--bg);color:var(--tx);line-height:1.5}
+.hd{background:linear-gradient(135deg,var(--sn),#F0BCB4,var(--sn));padding:12px 16px;border-bottom:3px solid var(--rs);position:sticky;top:0;z-index:100}
+.hd h1{font-family:'Kanit';font-size:20px;font-weight:700;color:var(--si)}.hd p{font-size:9px;color:var(--mu);margin-top:2px}
+.nv{display:flex;gap:3px;padding:6px 8px;background:var(--card);border-bottom:2px solid var(--bd);overflow-x:auto;position:sticky;top:60px;z-index:99}
+.nb{font-family:'Sarabun';font-size:10px;font-weight:600;padding:5px 9px;border:1px solid var(--bd);border-radius:5px;background:var(--c2);color:var(--tx);cursor:pointer;white-space:nowrap;transition:.2s}
+.nb:hover{background:var(--sn)}.nb.a{background:var(--rs);color:#fff;border-color:var(--rs)}
+.mx{max-width:1600px;margin:0 auto;padding:10px}
+.sc{display:none}.sc.a{display:block}
+.cd{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.ct{font-family:'Kanit';font-size:13px;font-weight:700;color:var(--si);margin-bottom:6px;border-bottom:2px solid var(--sn);padding-bottom:4px}
+.kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:5px;margin-bottom:8px}
+.k{background:var(--c2);border:1.5px solid var(--bd);border-radius:6px;padding:6px;text-align:center;border-left:4px solid var(--bd)}
+.kl{font-size:7px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.kv{font-family:'Kanit';font-size:16px;font-weight:700;color:var(--tx);margin:1px 0}.kv .u{font-size:7px;font-weight:400;color:var(--mu)}
+.k.g{border-left-color:var(--gd);background:#5a8c3a06}.k.w{border-left-color:var(--wn);background:#c8924a06}.k.b{border-left-color:var(--bd2);background:#b85c5206}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cw{position:relative;height:260px;margin:6px 0;background:var(--c2);border-radius:6px;padding:6px}.cw.t{height:320px}.cw.s{height:200px}
+.dt{width:100%;border-collapse:collapse;font-size:9px;margin-top:6px}
+.dt th{background:var(--sn);color:var(--si);padding:4px;text-align:left;font-weight:700;font-size:8px;border-bottom:2px solid var(--bd)}
+.dt td{padding:3px 4px;border-bottom:1px solid rgba(225,190,160,.25)}.dt .n{text-align:right;font-family:'Kanit';font-weight:600}
+.dt tr:hover td{background:rgba(239,217,189,.12)}
+.bg{display:inline-block;padding:1px 5px;border-radius:8px;font-size:7px;font-weight:700}
+.bg-g{background:#5a8c3a12;color:#3a5a2a;border:1px solid #5a8c3a30}.bg-w{background:#c8924a12;color:#8a5e20;border:1px solid #c8924a30}.bg-b{background:#b85c5212;color:#8a2a20;border:1px solid #b85c5230}
+.ib{background:rgba(212,136,131,.06);border-left:3px solid var(--rs);padding:5px;margin:5px 0;border-radius:3px;font-size:8px;line-height:1.3}
+.eb{background:rgba(74,124,158,.06);border-left:3px solid var(--in);padding:5px;margin:5px 0;border-radius:3px;font-size:8px;line-height:1.3}
+.cs{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0}
+.cb{padding:3px 8px;border:1px solid var(--bd);border-radius:5px;background:var(--c2);font-size:9px;cursor:pointer;font-weight:600;transition:.15s}
+.cb:hover{background:var(--sn)}.cb.s{background:var(--rs);color:#fff;border-color:var(--rs)}
+.ft{text-align:center;padding:8px;font-size:8px;color:var(--mu);border-top:2px solid var(--bd);margin-top:12px}
+@media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.cw{height:200px}.cw.t{height:260px}}
+</style>
+</head>
+<body>
+<div class="hd">
+<h1>🐄 FARM PRATEUNG v7.4 — Complete Diagnostic Dashboard</h1>
+<p>Total Herd: 354 | Milking: 140 (69 pregnant) | Dry: 61 | Heifers: 85 | Data: Jan–Jul 2026 | TDRC Quality: 104 cows | 263 Multi-Cycle</p>
+</div>
+<div class="nv" id="nav"></div>
+<div class="mx">
+
+<!-- ═══════════ TAB 1: OVERVIEW ═══════════ -->
+<div class="sc a" id="s-ov">
+<div class="cd"><div class="ct">📊 Farm Scorecard — Corrected Real Data (July 2026)</div>
+<div class="kg">
+<div class="k g"><div class="kl">Total Herd</div><div class="kv">354</div></div>
+<div class="k g"><div class="kl">Milking</div><div class="kv">140</div></div>
+<div class="k g"><div class="kl">Pregnant (all)</div><div class="kv">176<span class="u">(cow69+dry61+heifer46)</span></div></div>
+<div class="k g"><div class="kl">Milk/Day</div><div class="kv">2,758<span class="u">kg</span></div></div>
+<div class="k g"><div class="kl">Milk/Cow</div><div class="kv">19.7<span class="u">kg</span></div></div>
+<div class="k g"><div class="kl">Price</div><div class="kv">23.15<span class="u">฿/kg</span></div></div>
+<div class="k g"><div class="kl">Revenue/Day</div><div class="kv">63.8<span class="u">K฿</span></div></div>
+<div class="k w"><div class="kl">Feed Cost %</div><div class="kv">45.6<span class="u">%</span></div></div>
+<div class="k w"><div class="kl">IOFC/Cow/Day</div><div class="kv">248<span class="u">฿</span></div></div>
+<div class="k g"><div class="kl">Median DO</div><div class="kv">91<span class="u">d</span></div></div>
+<div class="k g"><div class="kl">SPC</div><div class="kv">3.3</div></div>
+<div class="k b"><div class="kl">F/P<1.0 Acidosis</div><div class="kv">62.5<span class="u">%</span></div></div>
+</div></div>
+
+<div class="g2">
+<div class="cd"><div class="ct">📈 6-Dimension Radar</div><div class="cw"><canvas id="ch_radar"></canvas></div></div>
+<div class="cd"><div class="ct">📊 Herd Structure</div><div class="cw"><canvas id="ch_herd"></canvas></div></div>
+</div>
+
+<div class="g2">
+<div class="cd"><div class="ct">💰 IOFC/Cow/Day Trend (5 months)</div><div class="cw"><canvas id="ch_iofcTrend"></canvas></div></div>
+<div class="cd"><div class="ct">📈 Milk Price & Daily Production Trend</div><div class="cw"><canvas id="ch_priceTrend"></canvas></div></div>
+</div>
+
+<div class="cd"><div class="ct">📋 Monthly Economics Summary (Real Data)</div>
+<table class="dt">
+<tr><th>Month</th><th>Milking</th><th>Price ฿/kg</th><th>Milk kg/d</th><th>Milk/cow</th><th>Revenue/d</th><th>Feed Cost/d</th><th>IOFC/d</th><th>IOFC/cow/d</th><th>IOFC/mo</th></tr>
+<tr><td>Jan 2026</td><td class="n">144</td><td class="n">22.68</td><td class="n">2,786</td><td class="n">19.4</td><td class="n">63,196</td><td class="n">28,817</td><td class="n">34,379</td><td class="n">239</td><td class="n">1,031K</td></tr>
+<tr style="background:#5a8c3a06"><td><strong>Mar 2026</strong></td><td class="n"><strong>153</strong></td><td class="n">22.50</td><td class="n"><strong>3,115</strong></td><td class="n"><strong>20.4</strong></td><td class="n"><strong>70,082</strong></td><td class="n">31,957</td><td class="n"><strong>38,125</strong></td><td class="n"><strong>249</strong></td><td class="n"><strong>1,144K</strong></td></tr>
+<tr><td>Apr 2026</td><td class="n">156</td><td class="n">22.55</td><td class="n">2,921</td><td class="n">18.7</td><td class="n">65,871</td><td class="n">30,037</td><td class="n">35,834</td><td class="n">230</td><td class="n">1,075K</td></tr>
+<tr><td>May 2026</td><td class="n">151</td><td class="n">22.67</td><td class="n">2,967</td><td class="n">19.6</td><td class="n">67,257</td><td class="n">30,669</td><td class="n">36,588</td><td class="n">242</td><td class="n">1,098K</td></tr>
+<tr><td>Jul 2026</td><td class="n">140</td><td class="n"><strong>23.15</strong></td><td class="n">2,758</td><td class="n">19.7</td><td class="n">63,846</td><td class="n">29,114</td><td class="n">34,732</td><td class="n">248</td><td class="n">1,042K</td></tr>
+</table></div>
+</div>
+
+
+<!-- ═══════════ TAB 2: INDIVIDUAL COWS ═══════════ -->
+<div class="sc" id="s-cow">
+<div class="cd"><div class="ct">🐄 Individual Cow — DIM vs Milk (All 124 Active Cows)</div>
+<div class="cw t"><canvas id="ch_dimMilk"></canvas></div>
+<div class="eb"><strong>📊 Interpretation:</strong> Each dot = 1 cow. X-axis = Days In Milk, Y-axis = latest milk yield. The blue curve shows expected Wood's lactation curve. Cows above curve = above average; below = underperforming or late lactation decline. Notable: some cows at DIM 200-300 still producing 30+ kg — excellent persistence.</div>
+</div>
+<div class="cd"><div class="ct">🐄 Featured Cow Selector — Lactation Curves + 305ME</div>
+<div class="cs" id="cowSel"></div></div>
+<div id="cowDet">
+<div class="g2">
+<div class="cd"><div class="ct" id="cowTi">📈 Lactation Curve</div><div class="cw t"><canvas id="ch_cowL"></canvas></div></div>
+<div class="cd"><div class="ct">📋 Cow Profile</div><div id="cowPro" style="font-size:9px;"></div></div>
+</div>
+<div class="cd"><div class="ct" id="meTi">📊 305-Day Production per Cycle</div><div class="cw"><canvas id="ch_305"></canvas></div>
+<div class="eb"><strong>Benchmarks:</strong> 🔴 Thai avg 5,500 kg | 🟠 Top farm 6,500 kg | 🟢 Holstein 8,000 kg</div></div>
+</div></div>
+
+<!-- ═══════════ TAB 3: REPRODUCTION ═══════════ -->
+<div class="sc" id="s-rp">
+<div class="cd"><div class="ct">🔬 Reproduction — Herd Structure & KPIs</div>
+<div class="kg">
+<div class="k g"><div class="kl">Milking Pregnant</div><div class="kv">69</div></div>
+<div class="k w"><div class="kl">Milking Open</div><div class="kv">71</div></div>
+<div class="k g"><div class="kl">Dry Pregnant</div><div class="kv">61</div></div>
+<div class="k g"><div class="kl">Heifer Pregnant</div><div class="kv">46</div></div>
+<div class="k w"><div class="kl">Heifer Open</div><div class="kv">39</div></div>
+<div class="k g"><div class="kl">Median DO</div><div class="kv">91<span class="u">d</span></div></div>
+<div class="k g"><div class="kl">Mean SPC</div><div class="kv">3.3</div></div>
+<div class="k g"><div class="kl">CR (Best)</div><div class="kv">27.9<span class="u">%</span></div></div>
+</div>
+<table class="dt">
+<tr><th>Category</th><th>Pregnant</th><th>Open</th><th>Total</th><th>%Pregnant</th></tr>
+<tr><td>แม่โครีดนม (Milking)</td><td class="n">69</td><td class="n">71</td><td class="n">140</td><td class="n">49.3%</td></tr>
+<tr><td>แม่โคแห้งนม (Dry)</td><td class="n">61</td><td class="n">0</td><td class="n">61</td><td class="n">100%</td></tr>
+<tr><td>โคสาว (Heifers)</td><td class="n">46</td><td class="n">39</td><td class="n">85</td><td class="n">54.1%</td></tr>
+<tr style="font-weight:700;background:#5a8c3a06"><td>รวมแม่โค+สาว</td><td class="n">176</td><td class="n">110</td><td class="n">286</td><td class="n">61.5%</td></tr>
+<tr><td>โครุ่น (Growing)</td><td colspan="3"></td><td class="n">59</td></tr>
+<tr><td>ลูกโค (Calves)</td><td colspan="3"></td><td class="n">9</td></tr>
+<tr style="font-weight:700"><td>โคทั้งหมด (Total)</td><td colspan="3"></td><td class="n">354</td></tr>
+</table></div>
+
+<div class="cd"><div class="ct">📈 AI Events & Conceptions (Jan 2025 → Jul 2026)</div><div class="cw t"><canvas id="ch_aiTr"></canvas></div>
+<div class="eb"><strong>Trend:</strong> AI grew from 8/mo (Jan25) → 71/mo (Dec25) = 8.9× increase. First conceptions Dec25 (CR 5.6%). Best CR: May26 at 27.9%. Confirms reproduction program working.</div></div>
+
+<div class="g2">
+<div class="cd"><div class="ct">📊 Monthly Conception Rate</div><div class="cw"><canvas id="ch_crTr"></canvas></div></div>
+<div class="cd"><div class="ct">📊 Days Open by Quarter</div><div class="cw"><canvas id="ch_doQ"></canvas></div>
+<div class="eb"><strong>DO Improving:</strong> Q4/25 median 120d → Q1/26 97d → Q2/26 81d ← below target 90d!</div></div>
+</div>
+<div class="g2">
+<div class="cd"><div class="ct">📊 SPC Distribution (69 Pregnant)</div><div class="cw"><canvas id="ch_spc"></canvas></div></div>
+<div class="cd"><div class="ct">📊 Days Open Distribution (67 Cows)</div><div class="cw"><canvas id="ch_doDist"></canvas></div></div>
+</div>
+<div class="g2">
+<div class="cd"><div class="ct">📊 Calvings per Month</div><div class="cw"><canvas id="ch_calv"></canvas></div></div>
+<div class="cd"><div class="ct">📈 Expected Calvings (Future)</div><div class="cw"><canvas id="ch_due"></canvas></div></div>
+</div>
+
+<div class="cd"><div class="ct">📋 Monthly Reproduction Summary Table</div>
+<div style="overflow-x:auto;">
+<table class="dt">
+<tr><th>Month</th><th>AI Events</th><th>Conceptions</th><th>CR %</th><th>Calvings</th><th>Avg DO</th><th>Assessment</th></tr>
+<tr style="background:#FAF6F2"><td colspan="7" style="font-weight:700;color:var(--si);">2025 — Building Phase</td></tr>
+<tr><td>Jan</td><td class="n">8</td><td class="n">0</td><td class="n">—</td><td class="n">0</td><td class="n">—</td><td><span class="bg bg-w">Starting</span></td></tr>
+<tr><td>Feb</td><td class="n">7</td><td class="n">0</td><td class="n">—</td><td class="n">2</td><td class="n">—</td><td><span class="bg bg-w">Low activity</span></td></tr>
+<tr><td>Mar</td><td class="n">12</td><td class="n">0</td><td class="n">—</td><td class="n">2</td><td class="n">—</td><td><span class="bg bg-w">Growing</span></td></tr>
+<tr><td>Apr-Jun</td><td class="n">29</td><td class="n">0</td><td class="n">—</td><td class="n">12</td><td class="n">—</td><td><span class="bg bg-w">Ramping up</span></td></tr>
+<tr><td>Jul-Sep</td><td class="n">51</td><td class="n">0</td><td class="n">—</td><td class="n">32</td><td class="n">—</td><td><span class="bg bg-w">Calving wave</span></td></tr>
+<tr><td>Oct-Nov</td><td class="n">67</td><td class="n">0</td><td class="n">—</td><td class="n">31</td><td class="n">—</td><td><span class="bg bg-i" style="background:#4a7c9e12;color:#2a5a7e;border:1px solid #4a7c9e30">AI surge</span></td></tr>
+<tr style="background:#5a8c3a06"><td><strong>Dec</strong></td><td class="n"><strong>71</strong></td><td class="n"><strong>4</strong></td><td class="n"><strong>5.6%</strong></td><td class="n"><strong>23</strong></td><td class="n"><strong>96d</strong></td><td><span class="bg bg-g">1st conceptions!</span></td></tr>
+<tr style="background:#FAF6F2"><td colspan="7" style="font-weight:700;color:var(--si);">2026 — Results Phase</td></tr>
+<tr style="background:#5a8c3a06"><td>Jan</td><td class="n">53</td><td class="n">13</td><td class="n"><strong>24.5%</strong></td><td class="n">11</td><td class="n">122d</td><td><span class="bg bg-g">✓ CR >20%!</span></td></tr>
+<tr><td>Feb</td><td class="n">59</td><td class="n">8</td><td class="n">13.6%</td><td class="n">15</td><td class="n">113d</td><td><span class="bg bg-w">Dip</span></td></tr>
+<tr style="background:#5a8c3a06"><td>Mar</td><td class="n">52</td><td class="n">13</td><td class="n"><strong>25.0%</strong></td><td class="n">10</td><td class="n">128d</td><td><span class="bg bg-g">✓ Recovered</span></td></tr>
+<tr style="background:#5a8c3a06"><td>Apr</td><td class="n">54</td><td class="n">14</td><td class="n"><strong>25.9%</strong></td><td class="n">11</td><td class="n">110d</td><td><span class="bg bg-g">✓ Best CR!</span></td></tr>
+<tr style="background:#5a8c3a06"><td>May</td><td class="n">43</td><td class="n">12</td><td class="n"><strong>27.9%</strong></td><td class="n">15</td><td class="n">89d</td><td><span class="bg bg-g">⭐ Best CR + DO!</span></td></tr>
+<tr><td>Jun</td><td class="n">49</td><td class="n">5</td><td class="n">10.2%</td><td class="n">11</td><td class="n">124d</td><td><span class="bg bg-w">↓ Heat stress?</span></td></tr>
+<tr><td>Jul</td><td class="n">40</td><td class="n">TBD</td><td class="n">TBD</td><td class="n">10</td><td class="n">—</td><td><span class="bg bg-i" style="background:#4a7c9e12;color:#2a5a7e;border:1px solid #4a7c9e30">Pending PD</span></td></tr>
+</table>
+</div>
+<div class="ib"><strong>💡 Story of Improvement:</strong> Jan-Jun 2025 = low activity (8-12 AI/mo, no conceptions). Jul-Nov 2025 = calving wave brought fresh cows + AI ramped up. Dec 2025 = first conceptions (CR 5.6%). Jan-May 2026 = CR stabilized at 24-28% with Days Open declining from 122d→89d. Jun 2026 CR dropped to 10.2% — possibly heat stress effect. This is a <strong>clear success story</strong> of a reproduction program that took 12 months to show results.</div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 4: ECONOMICS ═══════════ -->
+<div class="sc" id="s-ec">
+<div class="cd"><div class="ct">💰 Economics — July 2026</div>
+<div class="kg">
+<div class="k g"><div class="kl">Revenue/Day</div><div class="kv">63.8<span class="u">K฿</span></div></div>
+<div class="k w"><div class="kl">Feed Cost/Day</div><div class="kv">29.1<span class="u">K฿</span></div></div>
+<div class="k w"><div class="kl">Feed %</div><div class="kv">45.6<span class="u">%</span></div></div>
+<div class="k w"><div class="kl">IOFC/Day</div><div class="kv">34.7<span class="u">K฿</span></div></div>
+<div class="k w"><div class="kl">IOFC/Cow/Day</div><div class="kv">248<span class="u">฿</span></div></div>
+<div class="k g"><div class="kl">IOFC/Month</div><div class="kv">1,042<span class="u">K฿</span></div></div>
+</div></div>
+<div class="g2">
+<div class="cd"><div class="ct">📈 IOFC/Cow/Day Trend</div><div class="cw"><canvas id="ch_iofcT2"></canvas></div></div>
+<div class="cd"><div class="ct">📊 Revenue vs Feed Cost</div><div class="cw"><canvas id="ch_revFeed"></canvas></div></div>
+</div>
+<div class="cd"><div class="ct">📊 Feed Cost per Cow by Pen</div><div class="cw"><canvas id="ch_fcPen"></canvas></div></div>
+
+<div class="g2">
+<div class="cd"><div class="ct">📊 Feed Efficiency (ECM/DMI) by Pen — Real Data</div><div class="cw"><canvas id="ch_fePen"></canvas></div>
+<div class="eb"><strong>FE = ECM ÷ DMI.</strong> ECM = milk × (0.327 + 0.1276×fat% + 0.0978×prot%). Pen 1 (n=5): FE 1.10 | Pen 2 (n=17): FE 1.34 | Pen 4 (n=6): FE 1.16. Target FE ≥1.4. Only Pen 2 approaches target. <strong>Pen 3 excluded:</strong> DMI 8.1 kg ต่ำผิดปกติทำให้ FE สูงเกินจริง — ข้อมูลไม่น่าเชื่อถือ</div>
+</div>
+<div class="cd"><div class="ct">📈 Monthly Feed Efficiency Trend (Herd Level)</div><div class="cw"><canvas id="ch_feMonth"></canvas></div>
+<div class="eb"><strong>FE_ECM Herd Trend:</strong> Jan 1.10 → Mar 1.15 → Apr 1.06 → May 1.10 → Jul 1.11. Target ≥1.4. <strong>All months below target.</strong> DMI reference = Jul Pen 1 (19.37 kg) — other months' formulas unresolved in Excel. Best month: Mar (highest milk 20.4 kg/cow).</div>
+</div>
+</div>
+
+<div class="cd"><div class="ct">📋 Feed Efficiency Detail — Per Pen (Real Data)</div>
+<table class="dt">
+<tr><th>Pen</th><th>n (matched)</th><th>Avg Milk</th><th>Avg Fat%</th><th>Avg Prot%</th><th>Avg ECM</th><th>DMI</th><th>FE (ECM/DMI)</th><th>FE (Milk/DMI)</th><th>Status</th></tr>
+<tr><td>Pen 1 (High)</td><td class="n">5</td><td class="n">20.0</td><td class="n">3.30</td><td class="n">3.39</td><td class="n">21.4</td><td class="n">19.4</td><td class="n"><strong>1.10</strong></td><td class="n">1.03</td><td><span class="bg bg-b">❌ Below 1.4</span></td></tr>
+<tr><td>Pen 2 (Med)</td><td class="n">17</td><td class="n">20.7</td><td class="n">3.48</td><td class="n">3.56</td><td class="n">23.2</td><td class="n">17.3</td><td class="n"><strong>1.34</strong></td><td class="n">1.20</td><td><span class="bg bg-w">⚠️ Near target</span></td></tr>
+<tr><td>Pen 4 (Fresh)</td><td class="n">6</td><td class="n">17.4</td><td class="n">3.52</td><td class="n">3.72</td><td class="n">20.1</td><td class="n">17.3</td><td class="n"><strong>1.16</strong></td><td class="n">1.01</td><td><span class="bg bg-b">❌ Below 1.4</span></td></tr>
+</table>
+<div class="ib"><strong>Pen 3 (Low Milk) ไม่แสดง FE:</strong> DMI 8.1 kg (1.38% BW) ต่ำผิดปกติ ทำให้ค่า FE สูงเกินจริง (3.06) — ไม่ใช่ประสิทธิภาพดี แต่เป็นปัญหาวัวกินน้อยเกินไป ต้องตรวจสอบข้อมูล DMI ใหม่กับฟาร์ม<br/><br/>
+<strong>หมายเหตุ:</strong> n = จำนวนวัวที่ match ได้ทั้ง BCS pen assignment + TDRC quality data ค่า FE อาจไม่ represent ทั้งคอก ควรชั่งน้ำนมทุกตัวในวันเดียวกับที่เก็บ TDRC เพื่อให้ match 100%</div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 5: MILK QUALITY ═══════════ -->
+<div class="sc" id="s-mq">
+<div class="cd"><div class="ct">🧪 Milk Quality — TDRC Lab (3 Months)</div>
+<div class="kg">
+<div class="k g"><div class="kl">BT SCC (Jul)</div><div class="kv">54<span class="u">K</span></div></div>
+<div class="k g"><div class="kl">SCC Trend</div><div class="kv">94→68→54</div></div>
+<div class="k g"><div class="kl">Median SCC</div><div class="kv">24<span class="u">K</span></div></div>
+<div class="k g"><div class="kl">Fat%</div><div class="kv">3.35</div></div>
+<div class="k g"><div class="kl">Protein%</div><div class="kv">3.48</div></div>
+<div class="k b"><div class="kl">F/P <1.0 Acidosis</div><div class="kv">62.5<span class="u">%</span></div></div>
+<div class="k g"><div class="kl">F/P 1.0-1.4 Normal</div><div class="kv">37.5<span class="u">%</span></div></div>
+<div class="k g"><div class="kl">SCC <200K</div><div class="kv">93.3<span class="u">%</span></div></div>
+</div></div>
+<div class="g2">
+<div class="cd"><div class="ct">📊 Individual SCC Distribution (3 Months)</div><div class="cw"><canvas id="ch_sccD"></canvas></div></div>
+<div class="cd"><div class="ct">📊 F/P Ratio Distribution (Jul 104 Cows)</div><div class="cw"><canvas id="ch_fpD"></canvas></div>
+<div class="eb"><strong>F/P Corrected:</strong> <1.0 = Acidosis/SARA (62.5%!) | 1.0-1.4 = Normal | >1.4 = Ketosis (0%)</div></div>
+</div>
+<div class="g2">
+<div class="cd"><div class="ct">📈 Bulk Tank Trend (TDRC)</div><div class="cw"><canvas id="ch_btTr"></canvas></div></div>
+<div class="cd"><div class="ct">📊 SCC vs F/P Scatter (Jul)</div><div class="cw"><canvas id="ch_scFp"></canvas></div></div>
+</div>
+
+<div class="cd"><div class="ct">🟡 Acidosis Risk — F/P <1.0 เฉพาะวัวรีดนม (25 ตัว)</div>
+<div style="overflow-x:auto;">
+<table class="dt" style="table-layout:fixed;">
+<colgroup><col style="width:40px"><col style="width:70px"><col style="width:35px"><col style="width:35px"><col style="width:42px"><col style="width:42px"><col style="width:38px"><col style="width:42px"><col style="width:55px"></colgroup>
+<tr><th>ID</th><th>Name</th><th>DIM</th><th>Pen</th><th>Fat%</th><th>Prot%</th><th>F/P</th><th>SCC</th><th>Risk</th></tr>
+<tr style="background:#b85c5208"><td class="n">106</td><td>คำฝอย</td><td class="n">377</td><td class="n">3</td><td class="n">2.02</td><td class="n">3.11</td><td class="n"><strong>0.65</strong></td><td class="n">11</td><td><span class="bg bg-b">SEVERE</span></td></tr>
+<tr style="background:#b85c5208"><td class="n">364</td><td>ชมจันทร์</td><td class="n">241</td><td class="n">3</td><td class="n">2.83</td><td class="n">3.86</td><td class="n"><strong>0.73</strong></td><td class="n">13</td><td><span class="bg bg-b">HIGH</span></td></tr>
+<tr style="background:#b85c5208"><td class="n">293</td><td>คัดเค้า</td><td class="n">17</td><td class="n">4</td><td class="n">3.16</td><td class="n">4.21</td><td class="n"><strong>0.75</strong></td><td class="n">31</td><td><span class="bg bg-b">HIGH</span></td></tr>
+<tr style="background:#b85c5208"><td class="n">242</td><td>ต้นสน</td><td class="n">51</td><td class="n">1</td><td class="n">2.89</td><td class="n">3.85</td><td class="n"><strong>0.75</strong></td><td class="n">229</td><td><span class="bg bg-b">⚠️ BOTH</span></td></tr>
+<tr style="background:#b85c5208"><td class="n">357</td><td>เจ้าหญิง</td><td class="n">113</td><td class="n">2</td><td class="n">2.94</td><td class="n">3.72</td><td class="n"><strong>0.79</strong></td><td class="n">19</td><td><span class="bg bg-b">HIGH</span></td></tr>
+<tr style="background:#b85c5208"><td class="n">394</td><td>ไชน่า</td><td class="n">89</td><td class="n">4</td><td class="n">3.09</td><td class="n">3.82</td><td class="n"><strong>0.81</strong></td><td class="n">9</td><td><span class="bg bg-b">HIGH</span></td></tr>
+<tr><td class="n">382</td><td>ฟากฟ้า</td><td class="n">149</td><td class="n">2</td><td class="n">3.45</td><td class="n">3.97</td><td class="n">0.87</td><td class="n">4</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">413</td><td>ชะเอม</td><td class="n">251</td><td class="n">3</td><td class="n">2.99</td><td class="n">3.37</td><td class="n">0.89</td><td class="n">31</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">346</td><td>ต้นเต้ย</td><td class="n">222</td><td class="n">2</td><td class="n">3.04</td><td class="n">3.39</td><td class="n">0.90</td><td class="n">13</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">365</td><td>ป๋องแป้ง</td><td class="n">192</td><td class="n">2</td><td class="n">3.79</td><td class="n">4.22</td><td class="n">0.90</td><td class="n">39</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">387</td><td>องุ่น</td><td class="n">156</td><td class="n">4</td><td class="n">3.65</td><td class="n">4.05</td><td class="n">0.90</td><td class="n">71</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">411</td><td>กาล่า</td><td class="n">273</td><td class="n">2</td><td class="n">3.15</td><td class="n">3.49</td><td class="n">0.90</td><td class="n">103</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">328</td><td>ก๋วยเตี๋ยว</td><td class="n">153</td><td class="n">2</td><td class="n">3.34</td><td class="n">3.66</td><td class="n">0.91</td><td class="n">63</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">377</td><td>ต้นหอม</td><td class="n">163</td><td class="n">4</td><td class="n">3.22</td><td class="n">3.51</td><td class="n">0.92</td><td class="n">28</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">176</td><td>จ๊ะโอ๋</td><td class="n">73</td><td class="n">1</td><td class="n">3.10</td><td class="n">3.37</td><td class="n">0.92</td><td class="n">22</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">412</td><td>ลูกปัด</td><td class="n">265</td><td class="n">2</td><td class="n">3.14</td><td class="n">3.41</td><td class="n">0.92</td><td class="n">13</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">280</td><td>ลูกตาล</td><td class="n">213</td><td class="n">3</td><td class="n">2.95</td><td class="n">3.20</td><td class="n">0.92</td><td class="n">10</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">400</td><td>บุ้งกี๋</td><td class="n">347</td><td class="n">2</td><td class="n">3.27</td><td class="n">3.52</td><td class="n">0.93</td><td class="n">5</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">383</td><td>ลมหนาว</td><td class="n">89</td><td class="n">2</td><td class="n">3.47</td><td class="n">3.68</td><td class="n">0.94</td><td class="n">26</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">379</td><td>หมี่หยก</td><td class="n">122</td><td class="n">2</td><td class="n">3.45</td><td class="n">3.65</td><td class="n">0.95</td><td class="n">48</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">408</td><td>บานชื่น</td><td class="n">284</td><td class="n">3</td><td class="n">3.42</td><td class="n">3.59</td><td class="n">0.95</td><td class="n">48</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">397</td><td>ต้นกล้า</td><td class="n">352</td><td class="n">2</td><td class="n">3.66</td><td class="n">3.79</td><td class="n">0.97</td><td class="n">16</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">333</td><td>ปูเป้</td><td class="n">276</td><td class="n">3</td><td class="n">4.22</td><td class="n">4.34</td><td class="n">0.97</td><td class="n">46</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">398</td><td>นาบุญ</td><td class="n">342</td><td class="n">2</td><td class="n">3.57</td><td class="n">3.64</td><td class="n">0.98</td><td class="n">59</td><td><span class="bg bg-w">MOD</span></td></tr>
+<tr><td class="n">390</td><td>หมูแฮม</td><td class="n">447</td><td class="n">3</td><td class="n">3.77</td><td class="n">3.78</td><td class="n">1.00</td><td class="n">11</td><td><span class="bg bg-w">MOD</span></td></tr>
+</table></div>
+<div class="ib"><strong>เฉพาะวัวรีดนม 25 ตัว (จาก 140 ตัว):</strong> SEVERE 1 ตัว (#106 F/P 0.65, คอก 3) | HIGH 5 ตัว | MODERATE 18 ตัว | ⚠️BOTH 1 ตัว (#242 acidosis+mastitis)<br/>
+<strong>กระจายทุกคอก:</strong> Pen 1: 2 ตัว | Pen 2: 10 ตัว | Pen 3: 5 ตัว | Pen 4: 4 ตัว → ยืนยันเป็น herd-wide problem จาก TMR</div>
+</div>
+</div>
+<div class="sc" id="s-uh">
+<div class="cd"><div class="ct">🩺 Udder Health — Real TDRC Data</div>
+<div class="kg">
+<div class="k g"><div class="kl">Median SCC</div><div class="kv">24<span class="u">K</span></div></div>
+<div class="k g"><div class="kl">Mean SCC</div><div class="kv">56<span class="u">K</span></div></div>
+<div class="k g"><div class="kl">SCC<200K</div><div class="kv">93.3<span class="u">%</span></div></div>
+<div class="k w"><div class="kl">SCC>200K</div><div class="kv">7<span class="u">cows</span></div></div>
+<div class="k g"><div class="kl">Trend</div><div class="kv">↓ Improving</div></div>
+</div></div>
+<div class="g2">
+<div class="cd"><div class="ct">📈 SCC Trend (Real)</div><div class="cw"><canvas id="ch_sccTr"></canvas></div></div>
+<div class="cd"><div class="ct">📊 SCC Risk (Jul 104 Cows)</div><div class="cw"><canvas id="ch_sccRk"></canvas></div></div>
+</div>
+
+<div class="cd"><div class="ct">🔴 Mastitis Risk — เฉพาะวัวรีดนม SCC >100K (4 ตัว)</div>
+<div style="overflow-x:auto;">
+<table class="dt" style="table-layout:fixed;">
+<colgroup><col style="width:40px"><col style="width:70px"><col style="width:35px"><col style="width:35px"><col style="width:50px"><col style="width:50px"><col style="width:50px"><col style="width:30px"><col style="width:40px"><col style="width:40px"><col style="width:35px"><col style="width:48px"></colgroup>
+<tr><th>ID</th><th>Name</th><th>DIM</th><th>Pen</th><th>SCC May</th><th>SCC Jun</th><th>SCC Jul</th><th>Trend</th><th>Fat%</th><th>Prot%</th><th>F/P</th><th>Risk</th></tr>
+<tr style="background:#b85c5208"><td class="n">242</td><td>ต้นสน</td><td class="n">51</td><td class="n">1</td><td class="n">—</td><td class="n">—</td><td class="n"><strong>229</strong></td><td style="text-align:center">—</td><td class="n">2.89</td><td class="n">3.85</td><td class="n">0.75</td><td><span class="bg bg-b">⚠️ BOTH</span></td></tr>
+<tr><td class="n">380</td><td>หมูหวาน</td><td class="n">73</td><td class="n">1</td><td class="n">141</td><td class="n">96</td><td class="n">117</td><td style="text-align:center">↓</td><td class="n">3.86</td><td class="n">3.50</td><td class="n">1.10</td><td><span class="bg bg-w">WATCH</span></td></tr>
+<tr><td class="n">395</td><td>อัญชัน</td><td class="n">380</td><td class="n">2</td><td class="n">283</td><td class="n">116</td><td class="n">106</td><td style="text-align:center">↓</td><td class="n">3.91</td><td class="n">3.76</td><td class="n">1.04</td><td><span class="bg bg-w">WATCH</span></td></tr>
+<tr><td class="n">411</td><td>กาล่า</td><td class="n">273</td><td class="n">2</td><td class="n">—</td><td class="n">—</td><td class="n">103</td><td style="text-align:center">—</td><td class="n">3.15</td><td class="n">3.49</td><td class="n">0.90</td><td><span class="bg bg-w">WATCH</span></td></tr>
+</table></div>
+<div class="ib"><strong>เฉพาะวัวรีดนม 4 ตัว (จาก 140 ตัว) ที่มี SCC >100K:</strong><br/>
+🔴 <strong>#242 ต้นสน</strong> (DIM51, คอก1) — SCC 229K + F/P 0.75 = ⚠️ทั้ง mastitis + acidosis ต้องเก็บนมส่ง culture + ตรวจ TMR ทันที<br/>
+🟠 <strong>#380 หมูหวาน</strong> (DIM73, คอก1) — SCC ลดลง 141→96→117 แต่ยังสูง ติดตามต่อ<br/>
+🟠 <strong>#395 อัญชัน</strong> (DIM380, คอก2) — SCC ลดลงต่อเนื่อง 283→116→106 ดีขึ้น late lactation<br/>
+🟠 <strong>#411 กาล่า</strong> (DIM273, คอก2) — เพิ่งตรวจครั้งแรก SCC 103 + F/P 0.90 ติดตาม</div>
+</div>
+</div>
+
+<!-- ═══════════ TAB 7: FEED MANAGEMENT ═══════════ -->
+<div class="sc" id="s-fd">
+<div class="cd"><div class="ct">🌾 Feed — Root Cause Analysis: 62.5% Acidosis</div>
+<div class="kg">
+<div class="k b"><div class="kl">F/P<1.0 Acidosis</div><div class="kv">62.5<span class="u">%</span></div></div>
+<div class="k w"><div class="kl">DMI Pen1</div><div class="kv">19.4<span class="u">kg</span></div></div>
+<div class="k b"><div class="kl">DMI Pen3</div><div class="kv">8.1<span class="u">kg</span></div></div>
+<div class="k b"><div class="kl">Upper Sieve</div><div class="kv">1.4<span class="u">%</span></div></div>
+<div class="k w"><div class="kl">Feed Cost %</div><div class="kv">45.6<span class="u">%</span></div></div>
+</div></div>
+
+<div class="g2">
+<div class="cd"><div class="ct">📊 F/P Acidosis by Lactation Stage</div><div class="cw"><canvas id="ch_fpSt"></canvas></div></div>
+<div class="cd"><div class="ct">📊 F/P Acidosis by Pen</div><div class="cw"><canvas id="ch_fpPn"></canvas></div></div>
+</div>
+<div class="g2">
+<div class="cd"><div class="ct">📊 Penn State Sieve (Jul) vs Target</div><div class="cw"><canvas id="ch_sieve"></canvas></div></div>
+<div class="cd"><div class="ct">📊 DMI & Feed Efficiency by Pen</div><div class="cw"><canvas id="ch_dmiP"></canvas></div></div>
+</div>
+<div class="g2">
+<div class="cd"><div class="ct">📊 BCS by Lactation Stage vs Target</div><div class="cw"><canvas id="ch_bcs"></canvas></div></div>
+<div class="cd"><div class="ct">📈 Sieve Trend (18 months)</div><div class="cw"><canvas id="ch_svTr"></canvas></div></div>
+</div>
+
+<div class="cd"><div class="ct">📋 Feed Sensitivity per Pen</div>
+<table class="dt">
+<tr><th>Parameter</th><th>Pen 1 (High)</th><th>Pen 2 (Med)</th><th>Pen 3 (Low)</th><th>Pen 4 (Fresh)</th><th>Target</th></tr>
+<tr><td>Cows (#)</td><td class="n">38</td><td class="n">72</td><td class="n">55</td><td class="n">25</td><td>-</td></tr>
+<tr><td>BW (kg)</td><td class="n">556</td><td class="n">578</td><td class="n">582</td><td class="n">493</td><td>-</td></tr>
+<tr><td>DMI (kg/d)</td><td class="n">19.4</td><td class="n">17.3</td><td class="n" style="color:var(--bd2)"><strong>8.1</strong></td><td class="n">17.3</td><td>21-23</td></tr>
+<tr><td>DMI %BW</td><td class="n">3.48%</td><td class="n">3.0%</td><td class="n" style="color:var(--bd2)"><strong>1.38%</strong></td><td class="n">3.52%</td><td>3.0-3.5%</td></tr>
+<tr><td>CP%</td><td class="n">13.6</td><td class="n">13.6</td><td class="n">15.1</td><td class="n">13.6</td><td>14-16%</td></tr>
+<tr><td>NDF%</td><td class="n">50.2</td><td class="n">50.2</td><td class="n">54.5</td><td class="n">50.2</td><td>28-33%</td></tr>
+<tr><td>TDN%</td><td class="n">81.1</td><td class="n">81.1</td><td class="n">77.3</td><td class="n">81.1</td><td>72-75%</td></tr>
+<tr><td>Milk Target</td><td class="n">25 kg</td><td class="n">20 kg</td><td class="n">15 kg</td><td class="n">25 kg</td><td>-</td></tr>
+<tr><td>Feed ฿/cow/d</td><td class="n">206</td><td class="n">185</td><td class="n">97</td><td class="n">—</td><td>-</td></tr>
+<tr><td>Feed Eff</td><td class="n">1.29</td><td class="n">1.15</td><td class="n">1.86</td><td class="n">1.44</td><td>>1.4</td></tr>
+<tr><td>F/P Acidosis%</td><td class="n">40%</td><td class="n" style="color:var(--bd2)"><strong>71%</strong></td><td class="n">58%</td><td class="n">67%</td><td><5%</td></tr>
+</table></div>
+</div>
+
+
+</div>
+<div class="ft"><strong>Farm Prateung v7.4</strong> — All Real Data | 354 Head | 140 Milking | 124 DIM-Milk Points | 104 TDRC Quality | 139 BCS Records | 5-Month Economics | 19-Month Repro Trend</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const DL=['J12','J26','F8','F23','M12','M25','A8','My4','My25','Jn7','Jn22','Jl11','Jl27','A9','A24','S6','S21','O11','N12','N24','D21','Ja4','Ja25','F8','F22','M15','Ap13','Ap26','My4','Jn18','Jl19'];
+const COWS={
+405:{id:405,n:'Ton Khao',dim:296,preg:'Y',due:'Oct25',par:1,cyc:5,milk:[26.2,23,25,23.3,23.8,24.8,24.9,23.5,23.7,22.8,22.6,22.3,22.1,21.4,null,null,null,30.5,29.9,22.7,26.9,27.3,27.6,26.8,24.8,26.1,25.3,25.4,25.7,null,null]},
+292:{id:292,n:'Man Bot',dim:293,preg:'Y',due:'Nov20',par:5,cyc:5,milk:[null,null,null,null,33.2,33.7,33.6,34.3,34.1,32.1,30.7,30.3,28.5,26,25,23.2,21.8,19.2,18.3,15.2,10.2,8.7,null,null,null,null,31.2,34.7,38.2,34.1,29.8]},
+397:{id:397,n:'Mochi',dim:352,preg:'Y',due:'Oct26',par:3,cyc:5,milk:[null,null,29.4,32.1,33.3,33.2,33.5,31.9,32.1,31.9,29.1,29.5,30.9,24.9,26.1,23,23.5,27,22.2,18.6,null,null,null,28.2,28.8,34.7,35.5,33.6,34.3,33.4,30.4]},
+372:{id:372,n:'Cha Khiao',dim:158,preg:'Y',due:'Feb14',par:3,cyc:5,milk:[31.9,24.4,34.4,37.3,36.2,35.6,32.3,28.7,29.9,28.4,26.2,23.7,21.5,11.5,18.4,15.7,null,null,null,null,null,null,null,null,null,null,null,null,null,33.3,35.7]},
+364:{id:364,n:'Pu Khai',dim:241,preg:'Y',due:'Nov18',par:2,cyc:4,milk:[30.4,31.8,32,28.1,30.6,30.9,30.2,29.3,27.6,28,26.7,27.7,25.9,25.8,20.3,23.4,24,21.2,null,null,null,null,31.2,35.1,34.7,35.7,35.4,33.1,31.8,30.9,29.5]},
+346:{id:346,n:'Khao Tu',dim:222,preg:'Y',due:'Mar25',par:2,cyc:4,milk:[30.5,27.9,27.6,27.1,26.2,25.3,20.8,22.1,22.3,21.2,20.4,22.6,22.9,19.3,18.4,null,null,null,27,29.5,29.6,30.5,29.6,31.5,30.1,29.6,25.3,26.1,25.5,25.2,24.8]},
+357:{id:357,n:'Khai Tun',dim:113,preg:'Y',due:'Mar14',par:2,cyc:4,milk:[15.9,15.1,14.2,16.1,14.7,15.2,15.9,15.2,12.9,14.5,13.5,13.9,13,8.6,10.8,7.5,null,null,null,12.7,17.9,17.2,17.5,16.1,13.2,13.9,15.6,13.7,15.7,14,13.3]},
+136:{id:136,n:'Intoneel',dim:177,preg:'Y',due:'Jan17',par:4,cyc:4,milk:[22.9,22.2,21.9,20.6,21.9,20.4,20.8,19.7,17.7,16.6,16.4,15,13.4,12.6,10.5,8.6,null,null,null,23.4,26.7,26,25.1,25.2,24.8,23.6,20.2,20.9,19.8,null,null]},
+121:{id:121,n:'Pang Hom',dim:322,preg:'Y',due:'Dec23',par:5,cyc:2,milk:[22.7,22.5,19,19.8,19.3,18,17.2,15.1,12.9,13.3,14.2,10.8,10.6,9.8,8.6,8,null,null,null,null,null,null,null,17,30.4,33.9,34,34.5,33.2,28.2,28.8]},
+101:{id:101,n:'Pinmuk',dim:307,preg:'Y',due:'Dec3',par:5,cyc:2,milk:[14.2,12.2,10.3,9.8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,28.8,27.4,25.1,24.1,25.1,24.2,21,18.6,18.7,14.4,15,10.2]},
+153:{id:153,n:'Benja Mas',dim:439,preg:'Y',due:'Nov11',par:4,cyc:2,milk:[13.1,12.8,null,null,null,null,null,18.1,23.6,22.3,23.5,23.7,24.3,22.6,23.2,23.6,21.7,20.8,18.9,19.4,18.5,19.3,18.7,17.6,18,9.7,12.3,null,null,null,null]}
+};
+const CO=[405,292,397,372,364,346,357,136,121,101,153];
+const CL=['#D48883','#5a8c3a','#c8924a','#7A3D2E','#4a7c9e','#9ab096','#b85c52','#AA7C64','#6a8a6a','#c09c82','#558855'];
+const ME={405:[2135,4217,6680,7381,8108],292:[3462,5185,7018,7762,10248],397:[4490,6134,5032,8679,9871],372:[1464,4829,5604,8313,10522],364:[5083,5325,8491,10079],346:[4252,6022,7370,8547],357:[4244,5028,4429,4595],136:[4255,4755,5802,7189],121:[3386,6095,5590,9150],101:[4527,5457,6420],153:[4188,5055,6097]};
+// DIM vs Milk scatter (all 124 active cows)
+const DM=[{x:6,y:21.2},{x:8,y:25.8},{x:17,y:13.6},{x:18,y:20.2},{x:23,y:18.7},{x:27,y:25.4},{x:31,y:23.2},{x:35,y:18.6},{x:36,y:29.3},{x:50,y:11.7},{x:51,y:24.3},{x:62,y:19.5},{x:63,y:23.3},{x:65,y:19.7},{x:66,y:20.4},{x:67,y:20},{x:69,y:13.1},{x:69,y:5.6},{x:73,y:14.7},{x:73,y:14.3},{x:83,y:24.4},{x:89,y:17.7},{x:89,y:17.1},{x:90,y:29.8},{x:93,y:22.4},{x:94,y:19.9},{x:97,y:25.8},{x:104,y:22.3},{x:105,y:25.7},{x:107,y:21.1},{x:110,y:19.9},{x:113,y:13.3},{x:120,y:8.3},{x:120,y:18.8},{x:120,y:22},{x:122,y:24.5},{x:126,y:24.6},{x:131,y:24.2},{x:138,y:18.2},{x:142,y:17.3},{x:143,y:20.4},{x:144,y:23.6},{x:149,y:20.4},{x:153,y:26.8},{x:154,y:21.1},{x:154,y:22.5},{x:154,y:19.1},{x:156,y:23.8},{x:158,y:35.7},{x:159,y:21.7},{x:162,y:9.9},{x:163,y:8.7},{x:166,y:22.7},{x:169,y:6.9},{x:170,y:35.3},{x:174,y:20.4},{x:175,y:15.1},{x:177,y:19.8},{x:182,y:18.4},{x:189,y:12.3},{x:192,y:27.2},{x:192,y:12.9},{x:193,y:10.9},{x:194,y:32.7},{x:197,y:15.9},{x:199,y:22.1},{x:209,y:16.1},{x:209,y:12.7},{x:212,y:19.8},{x:213,y:19.8},{x:213,y:21.9},{x:215,y:13.2},{x:216,y:10.6},{x:217,y:8.7},{x:222,y:18.8},{x:222,y:24.8},{x:222,y:26.5},{x:224,y:36.1},{x:225,y:16.3},{x:227,y:13.7},{x:227,y:28.1},{x:232,y:18.4},{x:233,y:23.7},{x:234,y:17.1},{x:235,y:36},{x:238,y:11.3},{x:240,y:39.3},{x:241,y:29.5},{x:251,y:20},{x:251,y:25.9},{x:257,y:8.7},{x:257,y:11.7},{x:265,y:13.6},{x:269,y:12.5},{x:272,y:13.5},{x:273,y:32.9},{x:274,y:27.8},{x:276,y:33.2},{x:278,y:27.1},{x:284,y:9.6},{x:284,y:22.4},{x:286,y:26.6},{x:289,y:15},{x:289,y:11.9},{x:293,y:29.8},{x:293,y:10.6},{x:296,y:25.7},{x:301,y:24.4},{x:307,y:10.2},{x:309,y:11},{x:320,y:19.9},{x:322,y:28.8},{x:326,y:11.8},{x:329,y:15},{x:331,y:8.7},{x:342,y:11.8},{x:347,y:10},{x:352,y:30.4},{x:367,y:8.6},{x:377,y:29.5},{x:380,y:19.9},{x:439,y:12.3},{x:447,y:7.9},{x:515,y:23.9}];
+
+// ═══════════════════════════════════════════════════════════
+// CHART.JS SETUP
+// ═══════════════════════════════════════════════════════════
+const pctPlugin={id:'pct',afterDatasetsDraw(c){if(c.config.type!=='doughnut')return;const{ctx}=c;const ds=c.data.datasets[0];const t=ds.data.reduce((a,b)=>a+b,0);if(!t)return;c.getDatasetMeta(0).data.forEach((arc,i)=>{const p=((ds.data[i]/t)*100).toFixed(1)+'%';const{x,y}=arc.tooltipPosition();ctx.save();ctx.fillStyle='#3D2B1F';ctx.font="bold 9px 'Kanit'";ctx.textAlign='center';ctx.textBaseline='middle';if(ds.data[i]/t>.04)ctx.fillText(p,x,y);ctx.restore();});}};
+Chart.register(pctPlugin);
+const CH={};
+function mc(id,cfg){if(CH[id])CH[id].destroy();const el=document.getElementById(id);if(!el)return;cfg.options=cfg.options||{};cfg.options.responsive=true;cfg.options.maintainAspectRatio=false;Chart.defaults.color='#AA7C64';Chart.defaults.font.family="'Sarabun','Kanit'";Chart.defaults.font.size=9;CH[id]=new Chart(el,cfg);}
+
+// ═══════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════
+const TABS=[['ov','📊 Overview'],['ec','💰 Economics'],['cow','🐄 Production'],['rp','🔬 Reproduction'],['mq','🧪 Milk Quality'],['uh','🩺 Udder Health'],['fd','🌾 Feed']];
+function initNav(){const n=document.getElementById('nav');TABS.forEach(([id,nm],i)=>{const b=document.createElement('button');b.className='nb'+(i===0?' a':'');b.textContent=nm;b.onclick=()=>{document.querySelectorAll('.sc').forEach(s=>s.classList.remove('a'));document.getElementById('s-'+id).classList.add('a');document.querySelectorAll('.nb').forEach(x=>x.classList.remove('a'));b.classList.add('a');setTimeout(draw,150);};n.appendChild(b);});}
+
+// ═══════════════════════════════════════════════════════════
+// ALL CHARTS
+// ═══════════════════════════════════════════════════════════
+function draw(){
+// RADAR
+mc('ch_radar',{type:'radar',data:{labels:['Reproduction','Production','Economics','Feed','Milk Quality','Udder Health'],datasets:[{label:'Real Data',data:[82,75,55,45,72,78],borderColor:'#D48883',backgroundColor:'rgba(212,136,131,.1)',borderWidth:2,fill:true}]},options:{scales:{r:{max:100,ticks:{stepSize:25,font:{size:7}}}},plugins:{legend:{display:false}}}});
+// HERD STRUCTURE
+mc('ch_herd',{type:'doughnut',data:{labels:['Milking Preg (69)','Milking Open (71)','Dry (61)','Heifer Preg (46)','Heifer Open (39)','Growing (59)','Calves (9)'],datasets:[{data:[69,71,61,46,39,59,9],backgroundColor:['#5a8c3a','#c8924a','#7a9e7e','#4a7c9e','#AA7C64','#EFD9BD','#D48883']}]},options:{plugins:{legend:{display:true,position:'right',labels:{font:{size:7},padding:3,boxWidth:8}}}}});
+// IOFC TREND
+mc('ch_iofcTrend',{type:'line',data:{labels:['Jan','Mar','Apr','May','Jul'],datasets:[{label:'IOFC/cow/d (฿)',data:[239,249,230,242,248],borderColor:'#5a8c3a',tension:.3,borderWidth:2.5,fill:false,pointRadius:4},{label:'Target 250฿',data:[250,250,250,250,250],borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{min:200,max:270}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+// PRICE + MILK TREND
+mc('ch_priceTrend',{type:'line',data:{labels:['Jan','Mar','Apr','May','Jul'],datasets:[{label:'Price ฿/kg',data:[22.68,22.50,22.55,22.67,23.15],borderColor:'#D48883',tension:.3,borderWidth:2,yAxisID:'y'},{label:'Milk kg/d',data:[2786,3115,2921,2967,2758],borderColor:'#5a8c3a',tension:.3,borderWidth:2,yAxisID:'y1'}]},options:{scales:{y:{position:'left',min:22,max:23.5,title:{display:true,text:'฿/kg',font:{size:7}}},y1:{position:'right',min:2500,max:3300,title:{display:true,text:'kg/d',font:{size:7}},grid:{drawOnChartArea:false}}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+
+// DIM vs MILK scatter (ALL 124 cows)
+mc('ch_dimMilk',{type:'scatter',data:{datasets:[{label:'Individual Cows (n=124)',data:DM,borderColor:'#D48883',backgroundColor:'rgba(212,136,131,.35)',radius:3.5,borderWidth:1},{label:'Expected Curve',data:[{x:15,y:20},{x:60,y:28},{x:120,y:24},{x:200,y:20},{x:300,y:16},{x:400,y:12},{x:500,y:10}],type:'line',borderColor:'#4a7c9e',borderWidth:2,borderDash:[6,3],pointRadius:0,fill:false,tension:.4}]},options:{scales:{x:{title:{display:true,text:'DIM (Days In Milk)',font:{size:8}},min:0,max:550},y:{title:{display:true,text:'Milk kg/day',font:{size:8}},min:0,max:42}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+
+// AI TREND
+const mL=['J25','F','M','A','M','J','J','A','S','O','N','D25','J26','F','M','A','M','J','J26'];
+mc('ch_aiTr',{type:'bar',data:{labels:mL,datasets:[{label:'AI Events',data:[8,7,12,8,9,12,13,18,20,29,38,71,53,59,52,54,43,49,40],backgroundColor:'rgba(200,146,74,.4)',order:2},{label:'Conceptions',data:[0,0,0,0,0,0,0,0,0,0,0,4,13,8,13,14,12,5,0],backgroundColor:'#5a8c3a',order:1},{label:'Calvings',data:[0,2,2,3,7,2,4,9,19,19,12,23,11,15,10,11,15,11,10],type:'line',borderColor:'#D48883',borderWidth:1.5,pointRadius:1.5,fill:false,order:0}]},options:{scales:{y:{beginAtZero:true}},plugins:{legend:{display:true,position:'bottom',labels:{font:{size:7}}}}}});
+// CR TREND
+mc('ch_crTr',{type:'line',data:{labels:['D25','J26','F','M','A','M','J'],datasets:[{label:'CR%',data:[5.6,24.5,13.6,25,25.9,27.9,10.2],borderColor:'#5a8c3a',backgroundColor:'rgba(90,140,58,.08)',fill:true,tension:.3,borderWidth:2.5,pointRadius:3},{label:'Target 25%',data:[25,25,25,25,25,25,25],borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{min:0,max:35}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+// DO QUARTER
+mc('ch_doQ',{type:'bar',data:{labels:['Q4/25\n(n=4)','Q1/26\n(n=32)','Q2/26\n(n=31)'],datasets:[{label:'Median DO',data:[120,97,81],backgroundColor:['#c8924a','#c8924a','#5a8c3a']},{label:'Target 90d',data:[90,90,90],type:'line',borderColor:'#4a7c9e',borderWidth:2,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{beginAtZero:true,max:140}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+// SPC
+mc('ch_spc',{type:'bar',data:{labels:['1','2','3','4','5','7-10'],datasets:[{label:'Cows',data:[19,18,10,7,6,6],backgroundColor:['#5a8c3a','#5a8c3a','#c8924a','#c8924a','#b85c52','#b85c52']}]},options:{plugins:{legend:{display:false}}}});
+// DO DIST
+mc('ch_doDist',{type:'bar',data:{labels:['45-60','61-90','91-120','121-150','151-200','201-322'],datasets:[{label:'Cows',data:[8,22,15,9,6,7],backgroundColor:['#5a8c3a','#5a8c3a','#5a8c3a','#c8924a','#c8924a','#b85c52']}]},options:{plugins:{legend:{display:false}}}});
+// CALVINGS
+mc('ch_calv',{type:'bar',data:{labels:mL,datasets:[{label:'Calvings',data:[0,2,2,3,7,2,4,9,19,19,12,23,11,15,10,11,15,11,10],backgroundColor:'rgba(212,136,131,.4)'}]},options:{plugins:{legend:{display:false}}}});
+// DUE
+mc('ch_due',{type:'bar',data:{labels:['A26','S','O','N','D','J27','F','M','A'],datasets:[{label:'Due',data:[10,23,24,15,21,13,19,8,1],backgroundColor:'#5a8c3a'}]},options:{plugins:{legend:{display:false}}}});
+
+// ECONOMICS
+mc('ch_iofcT2',{type:'line',data:{labels:['Jan','Mar','Apr','May','Jul'],datasets:[{label:'IOFC/cow/d',data:[239,249,230,242,248],borderColor:'#5a8c3a',tension:.3,borderWidth:2.5,pointRadius:4,fill:false},{label:'Target',data:[250,250,250,250,250],borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{min:200,max:270}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+mc('ch_revFeed',{type:'bar',data:{labels:['Jan','Mar','Apr','May','Jul'],datasets:[{label:'Revenue',data:[63.2,70.1,65.9,67.3,63.8],backgroundColor:'#5a8c3a'},{label:'Feed Cost',data:[28.8,32,30,30.7,29.1],backgroundColor:'#b85c52'},{label:'IOFC',data:[34.4,38.1,35.8,36.6,34.7],backgroundColor:'#c8924a'}]},options:{plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+mc('ch_fcPen',{type:'bar',data:{labels:['Pen1 High','Pen2 Med','Pen3 Low'],datasets:[{label:'Feed ฿/cow/d',data:[206,185,97],backgroundColor:['#c8924a','#c8924a','#b85c52']},{label:'Target 200฿',data:[200,200,200],type:'line',borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+// FE ECM by Pen (REAL DATA from matched BCS+TDRC)
+mc('ch_fePen',{type:'bar',data:{labels:['Pen 1\nHigh (n=5)','Pen 2\nMed (n=17)','Pen 4\nFresh (n=6)'],datasets:[{label:'FE (ECM/DMI)',data:[1.10,1.34,1.16],backgroundColor:['#b85c52','#c8924a','#b85c52'],borderRadius:3},{label:'FE (Milk/DMI)',data:[1.03,1.20,1.01],backgroundColor:['rgba(184,92,82,.3)','rgba(200,146,74,.3)','rgba(184,92,82,.3)'],borderRadius:3},{label:'Target ≥1.4',data:[1.4,1.4,1.4],type:'line',borderColor:'#4a7c9e',borderWidth:2,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{beginAtZero:true,max:1.8,title:{display:true,text:'FE',font:{size:8}}}},plugins:{legend:{display:true,labels:{font:{size:7}}}}}});
+// Monthly FE Trend (herd level, DMI=Jul Pen1 19.37kg)
+mc('ch_feMonth',{type:'line',data:{labels:['Jan','Mar','Apr','May','Jul'],datasets:[{label:'FE ECM/DMI',data:[1.10,1.15,1.06,1.10,1.11],borderColor:'#D48883',backgroundColor:'rgba(212,136,131,.06)',fill:true,tension:.3,borderWidth:2.5,pointRadius:4},{label:'FE Milk/DMI',data:[1.00,1.05,0.97,1.01,1.02],borderColor:'#c8924a',tension:.3,borderWidth:2,pointRadius:3,fill:false},{label:'Target ≥1.4',data:[1.4,1.4,1.4,1.4,1.4],borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{min:0.8,max:1.6,title:{display:true,text:'FE',font:{size:8}}}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+
+// QUALITY
+mc('ch_sccD',{type:'bar',data:{labels:['<50K','50-100','100-200','200-400','>400'],datasets:[{label:'May',data:[69,10,15,9,4],backgroundColor:'rgba(200,146,74,.5)'},{label:'Jun',data:[61,18,11,5,2],backgroundColor:'rgba(90,140,58,.5)'},{label:'Jul',data:[71,18,8,5,2],backgroundColor:'rgba(212,136,131,.7)'}]},options:{plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+mc('ch_fpD',{type:'doughnut',data:{labels:['<1.0 Acidosis (65)','1.0-1.2 Normal (27)','1.2-1.4 Norm-Hi (12)','>1.4 Ketosis (0)'],datasets:[{data:[65,27,12,0],backgroundColor:['#b85c52','#5a8c3a','#c8924a','#8b4343']}]},options:{plugins:{legend:{display:true,labels:{font:{size:7},padding:3}}}}});
+mc('ch_btTr',{type:'line',data:{labels:['May','Jun','Jul'],datasets:[{label:'BT SCC',data:[94,68,54],borderColor:'#D48883',tension:.3,borderWidth:2.5,yAxisID:'y'},{label:'Fat%',data:[3.32,3.48,3.35],borderColor:'#5a8c3a',tension:.3,borderWidth:2,yAxisID:'y1'},{label:'Prot%',data:[3.40,3.38,3.48],borderColor:'#c8924a',tension:.3,borderWidth:2,yAxisID:'y1'},{label:'Target SCC<50',data:[50,50,50],borderColor:'#4a7c9e',borderWidth:1,borderDash:[4,3],pointRadius:0,fill:false,yAxisID:'y'}]},options:{scales:{y:{position:'left',min:0,max:120,title:{display:true,text:'SCC',font:{size:7}}},y1:{position:'right',min:3.0,max:3.6,title:{display:true,text:'%',font:{size:7}},grid:{drawOnChartArea:false}}},plugins:{legend:{display:true,labels:{font:{size:7}}}}}});
+mc('ch_scFp',{type:'scatter',data:{datasets:[{label:'Cows',data:[{x:515,y:1.3},{x:315,y:1.39},{x:225,y:1.04},{x:216,y:.8},{x:138,y:.79},{x:117,y:1.1},{x:106,y:1.04},{x:103,y:1.29},{x:97,y:.83},{x:76,y:.94},{x:75,y:1.26},{x:74,y:.69},{x:63,y:.91},{x:61,y:1.1},{x:60,y:.9},{x:50,y:.83},{x:48,y:.94},{x:46,y:.97},{x:44,y:1.09},{x:42,y:.98},{x:42,y:1.01},{x:39,y:.9},{x:36,y:.88},{x:33,y:1.32},{x:28,y:.92},{x:25,y:1.01},{x:20,y:1},{x:16,y:.97},{x:14,y:.94},{x:13,y:1.19},{x:13,y:.92},{x:12,y:.98},{x:9,y:1.28},{x:9,y:.93},{x:7,y:1.09},{x:7,y:1.21},{x:6,y:1.28},{x:5,y:.93}],borderColor:'#D48883',backgroundColor:'rgba(212,136,131,.3)',radius:3}]},options:{scales:{x:{title:{display:true,text:'SCC×1000',font:{size:7}},min:0,max:550},y:{title:{display:true,text:'F/P',font:{size:7}},min:.5,max:1.5}},plugins:{legend:{display:false}}}});
+
+// UDDER
+mc('ch_sccTr',{type:'line',data:{labels:['May','Jun','Jul'],datasets:[{label:'Median',data:[33,29,24],borderColor:'#5a8c3a',tension:.3,borderWidth:3},{label:'Mean',data:[82,70,56],borderColor:'#c8924a',tension:.3,borderWidth:3},{label:'BT',data:[94,68,54],borderColor:'#D48883',borderWidth:2,borderDash:[4,3]},{label:'Target<50',data:[50,50,50],borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0}]},options:{scales:{y:{beginAtZero:true,max:100}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+mc('ch_sccRk',{type:'doughnut',data:{labels:['<50K (71)','50-100 (18)','100-200 (8)','200-400 (5)','>400 (2)'],datasets:[{data:[71,18,8,5,2],backgroundColor:['#5a8c3a','#7a9e7e','#c8924a','#b85c52','#8b4343']}]},options:{plugins:{legend:{display:true,labels:{font:{size:7},padding:3}}}}});
+
+// FEED
+mc('ch_fpSt',{type:'bar',data:{labels:['Trans\n0-60','Early\n61-120','Mid\n121-200','Late\n201-305','Ext\n306+'],datasets:[{label:'%Acidosis(<1.0)',data:[61.8,80,66.7,57.1,62.5],backgroundColor:'#b85c52'},{label:'%Normal(1.0-1.4)',data:[38.2,20,33.3,42.9,37.5],backgroundColor:'#5a8c3a'},{label:'Target<5%',data:[5,5,5,5,5],type:'line',borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{max:100}},plugins:{legend:{display:true,labels:{font:{size:7}}}}}});
+mc('ch_fpPn',{type:'bar',data:{labels:['Pen1\nHigh','Pen2\nMed','Pen3\nLow','Pen4\nFresh','PenD\nDry'],datasets:[{label:'%Acidosis',data:[40,70.6,58.3,66.7,65.2],backgroundColor:['#c8924a','#b85c52','#b85c52','#b85c52','#b85c52']},{label:'Target<5%',data:[5,5,5,5,5],type:'line',borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{max:80}},plugins:{legend:{display:true,labels:{font:{size:7}}}}}});
+mc('ch_sieve',{type:'bar',data:{labels:['Upper 19mm','Middle 8mm','Lower 4mm','Bottom'],datasets:[{label:'Actual Jul',data:[1.4,45.5,39.6,13.6],backgroundColor:['#b85c52','#5a8c3a','#b85c52','#b85c52']},{label:'Target Min',data:[2,30,10,30],type:'line',borderColor:'#4a7c9e',borderWidth:2,borderDash:[4,3],pointRadius:3,fill:false},{label:'Target Max',data:[8,50,20,40],type:'line',borderColor:'#c8924a',borderWidth:2,borderDash:[4,3],pointRadius:3,fill:false}]},options:{scales:{y:{max:55}},plugins:{legend:{display:true,labels:{font:{size:7}}}}}});
+mc('ch_dmiP',{type:'bar',data:{labels:['Pen1 Hi','Pen2 Med','Pen3 Low','Pen4 Fresh'],datasets:[{label:'DMI kg',data:[19.4,17.3,8.1,17.3],backgroundColor:['#c8924a','#c8924a','#b85c52','#5a8c3a']},{label:'Target 21kg',data:[21,21,21,21],type:'line',borderColor:'#4a7c9e',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{beginAtZero:true,max:25}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+// BCS
+mc('ch_bcs',{type:'bar',data:{labels:['0-60d\nn=20','61-120d\nn=29','121-200d\nn=31','201-305d\nn=43','306+d\nn=16'],datasets:[{label:'Median BCS',data:[3.50,3.25,3.25,3.25,3.50],backgroundColor:['#c8924a','#5a8c3a','#5a8c3a','#b85c52','#5a8c3a']},{label:'Target BCS',data:[3.25,3.00,3.25,3.50,3.50],type:'line',borderColor:'#4a7c9e',borderWidth:2,borderDash:[5,3],pointRadius:4,fill:false}]},options:{scales:{y:{min:2.5,max:4.0}},plugins:{legend:{display:true,labels:{font:{size:8}}}}}});
+// SIEVE TREND
+mc('ch_svTr',{type:'line',data:{labels:['J25','F','M','A','M','Jn','Jl','J26','F','M','A','M','Jl'],datasets:[{label:'Upper 19mm',data:[15,26.3,23.6,7,19.7,5.7,5,2.5,8.1,9.6,2.5,3.6,1.4],borderColor:'#b85c52',tension:.3,borderWidth:2.5},{label:'Middle 8mm',data:[21,22.5,22.2,40,17.6,29.8,30,42.5,36.9,32.2,38.7,42.6,45.5],borderColor:'#5a8c3a',tension:.3,borderWidth:2},{label:'Target Upper Min 2%',data:[2,2,2,2,2,2,2,2,2,2,2,2,2],borderColor:'#4a7c9e',borderWidth:1,borderDash:[4,3],pointRadius:0}]},options:{scales:{y:{min:0,max:50}},plugins:{legend:{display:true,position:'bottom',labels:{font:{size:7}}}}}});
+}
+
+// ═══════════════════════════════════════════════════════════
+// COW SELECTOR
+// ═══════════════════════════════════════════════════════════
+let selCow=405;
+function initCow(){const s=document.getElementById('cowSel');CO.forEach(id=>{const c=COWS[id];const b=document.createElement('button');b.className='cb'+(id===selCow?' s':'');b.textContent='#'+id+' '+c.n;b.onclick=()=>{selCow=id;document.querySelectorAll('.cb').forEach(x=>x.classList.remove('s'));b.classList.add('s');drawCow();};s.appendChild(b);});drawCow();}
+
+function drawCow(){
+const c=COWS[selCow];const m=ME[selCow];
+document.getElementById('cowTi').textContent='📈 #'+c.id+' '+c.n+' — Lactation';
+document.getElementById('meTi').textContent='📊 #'+c.id+' '+c.n+' — 305ME per Cycle';
+mc('ch_cowL',{type:'line',data:{labels:DL,datasets:[{label:'kg/d',data:c.milk,borderColor:'#D48883',backgroundColor:'rgba(212,136,131,.08)',fill:true,tension:.3,borderWidth:2.5,pointRadius:2,spanGaps:false}]},options:{scales:{y:{min:0,max:42}},plugins:{legend:{display:false}}}});
+if(m){const lb=m.map((_,i)=>'Lac '+(i+1));mc('ch_305',{type:'bar',data:{labels:lb,datasets:[{label:'305ME kg',data:m,backgroundColor:m.map(v=>v>=7000?'#5a8c3a':v>=5500?'#c8924a':'#b85c52'),borderRadius:3},{label:'Thai 5500',data:Array(m.length).fill(5500),type:'line',borderColor:'#b85c52',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false},{label:'Top 6500',data:Array(m.length).fill(6500),type:'line',borderColor:'#c8924a',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false},{label:'Holstein 8000',data:Array(m.length).fill(8000),type:'line',borderColor:'#5a8c3a',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{scales:{y:{beginAtZero:true,max:Math.max(11000,...m)+500}},plugins:{legend:{display:true,position:'bottom',labels:{font:{size:7},boxWidth:10,padding:3}}}}});}
+const vs=c.milk.filter(v=>v!==null);const pk=Math.max(...vs);const cr=vs[vs.length-1];const lm=m?m[m.length-1]:0;
+const g=lm>=8000?'⭐EXCEL':lm>=6500?'✓GOOD':lm>=5500?'⚠️FAIR':'❌LOW';
+let mt='';if(m){mt='<table class="dt"><tr><th>Cycle</th><th>305ME</th><th>Grade</th></tr>';m.forEach((v,i)=>{const gc=v>=7000?'bg-g':v>=5500?'bg-w':'bg-b';const gt=v>=7000?'EXCEL':v>=5500?'FAIR':'LOW';mt+=`<tr><td>Lac ${i+1}</td><td class="n">${v.toLocaleString()}</td><td><span class="bg ${gc}">${gt}</span></td></tr>`;});mt+='</table>';}
+document.getElementById('cowPro').innerHTML=`<div class="kg" style="grid-template-columns:1fr 1fr;"><div class="k ${c.preg==='Y'?'g':'w'}"><div class="kl">Status</div><div class="kv" style="font-size:11px">${c.preg==='Y'?'✓PREG':'Open'}</div></div><div class="k"><div class="kl">DIM</div><div class="kv">${c.dim}d</div></div><div class="k"><div class="kl">Parity</div><div class="kv">${c.par}</div></div><div class="k"><div class="kl">Cycles</div><div class="kv">${c.cyc}</div></div><div class="k"><div class="kl">Peak</div><div class="kv">${pk}kg</div></div><div class="k"><div class="kl">Current</div><div class="kv">${cr}kg</div></div><div class="k ${lm>=6500?'g':lm>=5500?'w':'b'}"><div class="kl">305ME</div><div class="kv">${lm.toLocaleString()}</div></div><div class="k"><div class="kl">Grade</div><div class="kv" style="font-size:10px">${g}</div></div></div>${c.preg==='Y'?`<div class="eb">🤰 Due: ${c.due}</div>`:''}${mt}`;
+}
+
+window.addEventListener('DOMContentLoaded',()=>{initNav();draw();initCow();});
+</script>
+</body></html>
