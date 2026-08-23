@@ -1459,6 +1459,16 @@ const NUTV = [
 ];
 let nutView = 0;
 
+/* the workbook records milk sold both per day and per month, and the two agree
+   exactly — the monthly figure is the daily one times the days in that calendar
+   month, to the decimal, in all six months. The recorded value is used and the
+   product is the fallback. */
+const MILKV = [
+  {lab:'Per day',   unit:'kg per day',   suffix:' kg/day'},
+  {lab:'Per month', unit:'kg per month', suffix:' kg/month'},
+];
+let milkView = 0;
+
 let tab = 'ov';
 let zoomed = null;                       /* id of the card drawn at full size */
 const host = document.getElementById('cards');
@@ -1588,17 +1598,37 @@ function tabOv(){
                    '<b>'+DS.fmt(GRP.reduce((a,g)=>a+(grpN(m,g)||0),0),0)+'</b>',
                    DS.fmt(DRY(m).exact,0)+' of '+DS.fmt(DRY(m).dry,0)])));
 
+  const MV = MILKV[milkView];
+  const soldDay = m => num(kpiOf(m).milk_kg_per_day);
+  const soldMonth = m => { const r = D.herd.find(h => h.month===m && String(h.category).indexOf('ต่อ เดือน') >= 0);
+    const rec = r ? num(r.n) : null;
+    return rec != null ? rec : (soldDay(m)==null ? null : soldDay(m) * daysIn(m)); };
+  const soldAt = m => milkView ? soldMonth(m) : soldDay(m);
+
   card('ov-milk', {
-    title:'Milk sold per day',
-    note:'Taken from the ration sheet of each month, which records the volume sold.',
-  }, p => DS.bar(p, HM.map(ml), HM.map(m => num(kpiOf(m).milk_kg_per_day)),
-      {dec:0, color:'var(--ds-s1)', tip:(i,v)=>DS.tip.head(ml(HM[i]))
-        + DS.tip.row('milk', DS.fmt(v,0)+' kg/day')
-        + DS.tip.row('per cow', DS.fmt(kpiOf(HM[i]).milk_kg_per_cow,1)+' kg')
-        + DS.tip.row('milking', DS.fmt(kpiOf(HM[i]).milking_n,0)+' head')}),
-    DS.table(['Month','Milking','Milk kg/day','kg per cow','Price THB/kg'],
-      HM.map(m => { const x=kpiOf(m); return [ml(m), DS.fmt(x.milking_n,0), DS.fmt(x.milk_kg_per_day,0),
-        DS.fmt(x.milk_kg_per_cow,1), DS.fmt(x.milk_price_baht,2)]; })));
+    title:'Milk sold, ' + MV.lab.toLowerCase(),
+    note:'Taken from the ration sheet of each month, which records the volume sold. The workbook carries both figures and they agree '
+      + 'exactly: the monthly one is the daily one times the days in that calendar month, to the decimal, in all six months. '
+      + 'February is short on the monthly view because it is a 28-day month, not because the cows gave less \u2014 per day it is the '
+      + 'second best month of the six.',
+    views: MILKV.map(v=>v.lab), view: milkView,
+    onView: i => { if (i === milkView) return; milkView = i; const y = scrollY; paint(); scrollTo(0, y); },
+  }, p => DS.bar(p, HM.map(ml), HM.map(soldAt),
+      {dec:0, color:'var(--ds-s1)', yfmt:t=>milkView ? DS.fmt(t/1000,0)+'K' : DS.fmt(t,0),
+       tip:(i,v)=>{ const m=HM[i], x=kpiOf(m);
+        return DS.tip.head(ml(m))
+        + DS.tip.row('milk sold', DS.fmt(v,0)+MV.suffix)
+        + DS.tip.row(milkView ? 'per day' : 'per month',
+            DS.fmt(milkView ? soldDay(m) : soldMonth(m), 0) + (milkView ? ' kg/day' : ' kg/month'))
+        + DS.tip.row('days in month', daysIn(m))
+        + DS.tip.row('per cow', DS.fmt(milkView ? soldMonth(m)/num(x.milking_n) : x.milk_kg_per_cow, 1)
+            + (milkView ? ' kg/month' : ' kg/day'))
+        + DS.tip.row('milking', DS.fmt(x.milking_n,0)+' head'); }}),
+    DS.table(['Month','Days','Milking','Milk kg/day','Milk kg/month','kg per cow per day','kg per cow per month','Price THB/kg'],
+      HM.map(m => { const x=kpiOf(m), mo=soldMonth(m), n=num(x.milking_n);
+        return [ml(m), daysIn(m), DS.fmt(x.milking_n,0), DS.fmt(x.milk_kg_per_day,0),
+          '<b>'+DS.fmt(mo,0)+'</b>', DS.fmt(x.milk_kg_per_cow,1),
+          n ? DS.fmt(mo/n,0) : '—', DS.fmt(x.milk_price_baht,2)]; })));
 
   const V = IOFC[iofcView];
   /* scale a per-day figure into the chosen unit; null unless the month has both sides */
