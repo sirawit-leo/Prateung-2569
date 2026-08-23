@@ -774,7 +774,7 @@ body.ds-body {
   DS.hitColumns = hitColumns;
 
   /* Stacked bars. series: [{name, color, data:[]}]
-     opts: {dec, refs, totalFmt(i,total), pctOf, hideZero, click(i, seriesIdx), yfmt,
+     opts: {dec, refs, totalFmt(i,total), pctOf, hideZero, click(i, seriesIdx), yfmt, max,
             tip(i,total) to replace the built-in tooltip outright}
 
      pctOf matters: without it, a bar carried by a single series always reports
@@ -785,9 +785,13 @@ body.ds-body {
     const VW = DS.W;                     /* frozen: see the note on DS.scatter */
     const totals = cats.map((_, i) => series.reduce((s, x) => s + (x.data[i] || 0), 0));
     const dec = opts.dec || 0;
-    const top = Math.max(...totals, ...(opts.refs || []).map(r => r.v), 1) * 1.12;
+    /* max pins the axis, for a stack that is a composition and always sums to the
+       same total; without it the axis finds its own top and wastes half the height */
+    const top = opts.max != null ? opts.max
+      : Math.max(...totals, ...(opts.refs || []).map(r => r.v), 1) * 1.12;
     const { X, Y } = DS.frame(svg, cats, 0, top, opts.yfmt || (v => DS.fmt(v, dec)), true);
-    const bw = Math.min(42, (DS.W - DS.PAD.l - DS.PAD.r) / Math.max(cats.length, 1) - 6);
+    const IW = DS.W - DS.PAD.l - DS.PAD.r;
+    const bw = Math.min(42, IW / Math.max(cats.length, 1) - 6);
     (opts.refs || []).forEach((r, i) => DS.refLine(svg, Y, r.v, r.label, i, 'var(--ds-critical)'));
 
     cats.forEach((_, i) => {
@@ -831,10 +835,15 @@ body.ds-body {
       hit.addEventListener('mouseleave', () => DS.tip.hide());
       svg.appendChild(hit);
 
-      const t = DS.el('text', { x: X(i), y: Y(totals[i]) - 6, 'text-anchor': 'middle',
-        fill: 'var(--ds-text-2)', 'font-size': 10.5, 'pointer-events': 'none' });
-      t.textContent = opts.totalFmt ? opts.totalFmt(i, totals[i]) : DS.fmt(totals[i], dec);
-      svg.appendChild(t);
+      /* the total label only goes on if its slot can hold it; a long series prints
+         one on top of the next otherwise */
+      const txt = opts.totalFmt ? opts.totalFmt(i, totals[i]) : DS.fmt(totals[i], dec);
+      if (txt && txt.length * 5.4 < IW / Math.max(cats.length, 1)) {
+        const t = DS.el('text', { x: X(i), y: Y(totals[i]) - 6, 'text-anchor': 'middle',
+          fill: 'var(--ds-text-2)', 'font-size': 10.5, 'pointer-events': 'none' });
+        t.textContent = txt;
+        svg.appendChild(t);
+      }
     });
     return svg;
   };
@@ -2069,7 +2078,10 @@ function tabFd(){
     views: TMRV.map(v=>v[1]), view: tmrView,
     onView: i => { if (i === tmrView) return; tmrView = i; const y = scrollY; paint(); scrollTo(0, y); },
   }, p => DS.stack(p, SM.map(yml), SIEVE.map(L=>({name:L.lab, color:L.color, data:SM.map(ym=>sg(ym,L.k))})),
-      {dec:1, totalFmt:(i,t)=>{const u=sg(SM[i],'Upper'); return u==null?'':'top '+DS.fmt(u,1)+'%';},
+      /* the top screen is the diagnostic one, so it is the number on the bar */
+      /* the four screens are a composition and always sum to 100, so the axis is
+         pinned there rather than left to find its own top */
+      {dec:1, max:100, totalFmt:(i,t)=>{const u=sg(SM[i],'Upper'); return u==null?'':DS.fmt(u,1)+'%';},
        tip:i=>DS.tip.head(yml(SM[i])) + SIEVE.map(L=>{ const v=sg(SM[i],L.k), ok=inRange(v,L);
          return DS.tip.row(L.lab, v==null?'—':DS.fmt(v,1)+'% '
            + (ok===null?'' : ok ? '<span style="color:var(--ds-good)">in</span>'
