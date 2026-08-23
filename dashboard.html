@@ -1507,6 +1507,24 @@ function addXRef(svg, points, xrefUsed, v, label){
   t.textContent = label; svg.appendChild(t);
 }
 
+/* DS.line just stops where the data stops, which reads as "the pen emptied"
+   when it means "nobody sampled it". Mark those months on the chart itself so
+   the reader does not have to open the table to find out. */
+function markGaps(svg, cats, labelAt){
+  const P = DS.PAD, IW = DS.W - P.l - P.r;
+  const X = i => P.l + (cats.length < 2 ? IW/2 : i * IW / (cats.length - 1));
+  cats.forEach((_, i) => {
+    const txt = labelAt(i);
+    if (!txt) return;
+    svg.appendChild(DS.el('line', {x1:X(i), x2:X(i), y1:P.t, y2:DS.H - P.b,
+      stroke:'var(--ds-muted)', 'stroke-dasharray':'2 4', opacity:.5, 'pointer-events':'none'}));
+    const t = DS.el('text', {x:X(i), y:DS.H - P.b - 8, 'text-anchor':'middle',
+      fill:'var(--ds-muted)', 'font-size':10, 'pointer-events':'none',
+      'paint-order':'stroke', stroke:'var(--ds-surface)', 'stroke-width':3, 'stroke-linejoin':'round'});
+    t.textContent = txt; svg.appendChild(t);
+  });
+}
+
 /* ════════════════ Overview ════════════════ */
 function tabOv(){
   const k = kpiOf(LAST), k6 = kpiOf('2569-06');
@@ -1721,12 +1739,20 @@ function tabMq(){
     legend: DS.legend('mqc', COMPS.map(c=>({color:c.color, name:c.name})), true),
     views: MQPENLAB, view: mqPen,
     onView: i => { if (i === mqPen) return; mqPen = i; const y = scrollY; paint(); scrollTo(0, y); },
-  }, p => DS.line(p, CATS, COMPS.map(c=>({name:c.name, color:c.color,
+  }, p => { const svg = DS.line(p, CATS, COMPS.map(c=>({name:c.name, color:c.color,
         data:M.map(m=>med(mqSet(m).map(x=>x[c.k])))})),
       {dec:2, hidden:hid, fit:true, yfmt:t=>DS.fmt(t,1),
        refs:COMPS.map((c,i)=>({c:c,i:i})).filter(o=>o.c.min!=null && !hid.has(o.i))
               .map(o=>({v:o.c.min, label:o.c.name+' '+o.c.min})),
-       extra:i=>DS.tip.row('n', mqSet(M[i]).length)}),
+       extra:i=>{const s2=mqSet(M[i]), pp=penpopOf(M[i], MQPEN[mqPen]);
+         return DS.tip.row('n', s2.length)
+           + (MQPEN[mqPen] && pp.in_pen ? DS.tip.row('sampled from the pen', pp.tested+' of '+pp.in_pen) : '')
+           + (MQPEN[mqPen] && !s2.length ? DS.tip.row('why', 'in the pen, not sampled') : '');}});
+      /* a pen view says on the chart where a month was not sampled, and where the
+         point behind it is one or two cows rather than a herd median */
+      if (MQPEN[mqPen]) markGaps(svg, CATS, i => { const k = mqSet(M[i]).length;
+        return k === 0 ? 'not sampled' : k < 5 ? 'n=' + k : ''; });
+      return svg; },
     /* once a pen is picked, n on its own is misleading: show it against the
        number of cows actually in the pen, and how many pens were carried */
     DS.table([...(MQPEN[mqPen] ? ['Month','n','Sampled from the pen','Pen carried forward'] : ['Month','n']),
