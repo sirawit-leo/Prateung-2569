@@ -922,7 +922,7 @@ body.ds-body {
      hidden beneath it; only in open space does it fall back to the nearest point
      within 9 viewBox units. A ring marks whichever it picked.
      opts: {xref, yref, xrefLabel, yrefLabel, xlab, ylab, quad, yfit, trend, trendColor,
-            tip(p), click(p)}
+            bands, bandColor, tip(p), click(p)}
      quad:true labels each of the four regions cut by xref/yref with its share. */
   DS.scatter = function (host, points, opts) {
     opts = opts || {};
@@ -953,6 +953,34 @@ body.ds-body {
       lab.textContent = DS.fmt(t, 0);
       svg.appendChild(lab);
     });
+    /* bands: [{x0, x1, y0, y1, label}] — a target range that changes across the
+       x axis, drawn behind everything so the cloud stays readable on top */
+    (opts.bands || []).forEach((b, i) => {
+      const x0 = X(b.x0), x1 = X(Math.min(b.x1, xtop));
+      const y1 = Y(b.y1), y0 = Y(b.y0);
+      svg.appendChild(DS.el('rect', { x: x0, y: y1, width: Math.max(x1 - x0, 0),
+        height: Math.max(y0 - y1, 0), fill: opts.bandColor || 'var(--ds-good)',
+        opacity: .11, 'pointer-events': 'none' }));
+      [y1, y0].forEach(y => svg.appendChild(DS.el('line', { x1: x0, x2: x1, y1: y, y2: y,
+        stroke: opts.bandColor || 'var(--ds-good)', 'stroke-width': 1.2,
+        opacity: .55, 'pointer-events': 'none' })));
+      if (i) svg.appendChild(DS.el('line', { x1: x0, x2: x0, y1: Math.min(y0, y1), y2: Math.max(y0, y1),
+        stroke: opts.bandColor || 'var(--ds-good)', 'stroke-width': 1, opacity: .35,
+        'stroke-dasharray': '2 2', 'pointer-events': 'none' }));
+      /* the label goes at the top of the plot, not on the band edge: a band drawn
+         through the middle of the cloud has its edge exactly where the points are
+         densest. A narrow band drops its label rather than print over its neighbour. */
+      if (b.label && (x1 - x0) > b.label.length * 4.6) {
+        const ly = P.t + 10;
+        const t = DS.el('text', { x: (x0 + x1) / 2, y: ly, 'text-anchor': 'middle',
+          fill: 'var(--ds-muted)', 'font-size': 9.5, 'pointer-events': 'none' });
+        t.textContent = b.label; svg.appendChild(t);
+        svg.appendChild(DS.el('line', { x1: (x0 + x1) / 2, x2: (x0 + x1) / 2, y1: ly + 4, y2: y1 - 2,
+          stroke: opts.bandColor || 'var(--ds-good)', 'stroke-width': 1, opacity: .3,
+          'stroke-dasharray': '2 3', 'pointer-events': 'none' }));
+      }
+    });
+
     if (opts.xlab) {
       const t = DS.el('text', { x: P.l + IW / 2, y: VH - 4, 'text-anchor': 'middle',
         fill: 'var(--ds-muted)', 'font-size': 11 });
@@ -1974,31 +2002,73 @@ function tabFd(){
     const BM = D.bcsMeta, PC = ['var(--ds-s1)','var(--ds-s2)','var(--ds-s3)','var(--ds-s6)'];
     const pl = p2 => p2==null ? 'parity not on file' : (p2>=4 ? 'Parity 4+' : 'Parity '+p2);
     const BINS = [[0,50],[50,100],[100,150],[150,200],[200,250],[250,300],[300,400]];
+    /* The band a cow should sit in moves through the lactation: she is meant to
+       calve in condition, milk some of it off to a nadir around peak, hold there
+       through mid lactation and put it back on before she dries off. These are the
+       conventional targets on the 5-point scale, not anything derived from this
+       herd — they are what the herd is being measured against. */
+    const BCSOK = [
+      {x0:0,   x1:30,  y0:3.00, y1:3.75, stage:'Calving'},
+      {x0:30,  x1:100, y0:2.50, y1:3.25, stage:'Early, to peak'},
+      {x0:100, x1:200, y0:2.75, y1:3.25, stage:'Mid'},
+      {x0:200, x1:305, y0:3.00, y1:3.50, stage:'Late'},
+      {x0:305, x1:400, y0:3.25, y1:3.75, stage:'Dry off'},
+    ];
+    const okAt = d => BCSOK.find(b => d >= b.x0 && d < b.x1) || null;
+    const verdict = x => { const b=okAt(x.dim); if(!b) return null;
+                           return x.bcs < b.y0 ? 'thin' : x.bcs > b.y1 ? 'fat' : 'in range'; };
+    const scored = D.bcsPts.map(x => Object.assign({}, x, {v: verdict(x)}));
+    const nIn = scored.filter(x=>x.v==='in range').length;
+    const nThin = scored.filter(x=>x.v==='thin').length;
+    const nFat = scored.filter(x=>x.v==='fat').length;
     card('fd-bcs', {
       title:'Body condition against days in milk',
-      note:'One point per cow per month, deduplicated — the BCS block is copied into every monthly workbook, which turns '
+      note:'The shaded band is where a cow should be at that point in her lactation: calve in condition, milk some of it off to a nadir '
+        + 'around peak, hold through mid lactation, put it back on before dry off. Those are the conventional targets on the 5-point '
+        + 'scale, not anything fitted to this herd. Against them '
+        + DS.fmt(100*nIn/scored.length,0) + '% of scores are in range, ' + DS.fmt(100*nThin/scored.length,0) + '% thin and '
+        + DS.fmt(100*nFat/scored.length,0) + '% fat. '
+        + 'One point per cow per month, deduplicated — the BCS block is copied into every monthly workbook, which turns '
         + DS.fmt(BM.n,0) + ' real scores into ' + DS.fmt(BM.rows_before_dedup,0) + ' rows. Unlike the yield sheet this one\u2019s '
         + 'days-in-milk column holds up: on the ' + DS.fmt(BM.checked,0) + ' rows where a calving date allows a check, '
         + DS.fmt(100*BM.agreed/BM.checked,0) + '% land within five days of snapshot minus calving and the median difference is zero. '
         + 'The line is the mean score in each 50-day window. The expected shape is a dip through early lactation as she milks off her '
         + 'back, then a climb — the dip here is shallow, about a quarter of a point, on ' + DS.fmt(BM.n,0) + ' scores from '
         + DS.fmt(BM.cows,0) + ' cows.',
-      legend: DS.legend('bcs', [1,2,3,4].map((p2,i)=>({color:PC[i], name:pl(p2)})).concat([{color:'var(--ds-muted)',name:'parity not on file'}]), false),
+      legend: DS.legend('bcs', [1,2,3,4].map((p2,i)=>({color:PC[i], name:pl(p2)}))
+        .concat([{color:'var(--ds-muted)',name:'parity not on file'},
+                 {color:'var(--ds-good)',name:'acceptable range for that stage'}]), false),
     }, p => DS.scatter(p, D.bcsPts.map(x=>({x:x.dim, y:x.bcs, label:x.n||x.k,
           color: x.p==null ? 'var(--ds-muted)' : PC[Math.min(x.p,4)-1], c:x})),
         {xref:null, yref:3.0, yrefLabel:'BCS 3.0', xlab:'Days in milk', ylab:'BCS', yfmt:t=>DS.fmt(t,1),
          yfit:true,
+         /* the range is what the reader needs off the chart; the stage name is in
+            the table, and the calving band is too narrow to carry either */
+         bands: BCSOK.map(b=>({x0:b.x0, x1:b.x1, y0:b.y0, y1:b.y1,
+                               label:DS.fmt(b.y0,2)+'\u2013'+DS.fmt(b.y1,2)})),
          trend: BINS.map(([lo,hi])=>{ const v=D.bcsPts.filter(x=>x.dim>=lo&&x.dim<hi).map(x=>x.bcs);
                   return v.length ? [(lo+hi)/2, v.reduce((a,b)=>a+b,0)/v.length] : null; }).filter(Boolean),
          tip:pt=>DS.tip.head(pt.label)+DS.tip.row('BCS',DS.fmt(pt.y,2))
            +DS.tip.row('days in milk',DS.fmt(pt.x,0))
-           +DS.tip.row('parity',pl(pt.c.p))+DS.tip.row('month',ml(pt.c.m))}),
-      DS.table(['Days in milk','n','Mean BCS','Median BCS','Under 2.75','Over 3.75'],
-        BINS.map(([lo,hi])=>{ const v=D.bcsPts.filter(x=>x.dim>=lo&&x.dim<hi).map(x=>x.bcs);
-          return [lo+' to '+hi, v.length,
-            v.length?DS.fmt(v.reduce((a,b)=>a+b,0)/v.length,2):'—',
-            DS.fmt(med(v),2), rate(v.filter(x=>x<2.75).length, v.length, 0),
-            rate(v.filter(x=>x>3.75).length, v.length, 0)];})));
+           +DS.tip.row('parity',pl(pt.c.p))+DS.tip.row('month',ml(pt.c.m))
+           +(()=>{const b=okAt(pt.c.dim); if(!b) return '';
+                  const v=verdict(pt.c);
+                  return DS.tip.row('target here', DS.fmt(b.y0,2)+' to '+DS.fmt(b.y1,2))
+                       + DS.tip.row('verdict', v,
+                           v==='in range' ? 'var(--ds-good)' : v==='thin' ? 'var(--ds-critical)' : 'var(--ds-warning)');})()}),
+      /* one row per stage, so the target on the row is the one those cows are held to */
+      DS.table(['Stage','Days in milk','Acceptable BCS','n','Mean','Median','In range','Thin','Fat'],
+        BCSOK.map(b=>{ const g=scored.filter(x=>x.dim>=b.x0 && x.dim<b.x1);
+          const v=g.map(x=>x.bcs);
+          const cnt=k=>g.filter(x=>x.v===k).length;
+          const pill=(k,cls)=>cnt(k)?'<span class="ds-badge '+cls+'">'+rate(cnt(k),g.length,0)+'</span>':'—';
+          return [b.stage, b.x0+' to '+b.x1, DS.fmt(b.y0,2)+' to '+DS.fmt(b.y1,2), g.length,
+            v.length?DS.fmt(v.reduce((a,c)=>a+c,0)/v.length,2):'—', DS.fmt(med(v),2),
+            pill('in range','ds-badge-good'), pill('thin','ds-badge-bad'), pill('fat','ds-badge-warn')];})
+        .concat([['<b>All</b>','0 to 400','—','<b>'+scored.length+'</b>',
+          DS.fmt(scored.reduce((a,c)=>a+c.bcs,0)/scored.length,2), DS.fmt(med(scored.map(x=>x.bcs)),2),
+          '<b>'+rate(nIn,scored.length,0)+'</b>', '<b>'+rate(nThin,scored.length,0)+'</b>',
+          '<b>'+rate(nFat,scored.length,0)+'</b>']])));
   }
 
   tableCard({wide:true, title:'Ration analysis from the laboratory',
