@@ -102,6 +102,11 @@ Single constants, so moving one moves every label built from it.
   intake are typed into the ration sheet and frozen at 556 / 578 / 582 / 493 kg across all
   six months, so intake as a share of body weight is only as good as that divisor.
 - **Reproduction data is unusable for January** and absent for July.
+- **July's peNDF was reported by the farm, not read off a sheet.** The farm sieved in
+  July and gave the result — 46.88% on the top two screens for the high-yield mix, 25.17%
+  peNDF outright for the low-yield one — but the run itself is in none of the 34 files.
+  Both are used as given and labelled *supplied*. Neither came with the individual screens,
+  so July has no peNDF > 1.18 mm, and the peNDF card shows that one month alone.
 
 ## Status
 
