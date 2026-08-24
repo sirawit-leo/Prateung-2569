@@ -2448,12 +2448,34 @@ function tabFd(){
             '<b>'+f(v,1)+'</b>', badge];})));
   }
 
-  tableCard({wide:true, title:'Ration analysis from the laboratory',
-    note:'Only two rounds across seven months. The CP and NDF figures in the pen table therefore hold at whatever the last round measured; they do not change month to month.'},
-    DS.table(['Report no.','Collected','Sample','Moisture %','CP %','NDF %','ADF %','Ash %'],
-      D.feedlab.map(f=>[f.report_no||'—', f.collected_date||'—', DS.esc(String(f.sample||'—')),
+  /* Which pens carried each report's numbers, matched on CP and NDF rather than on
+     the sample name — that is what shows the two rounds are handed to opposite
+     groups. */
+  const fedTo = f => { const hit = D.penfeed.filter(x =>
+        Math.abs((num(x.CP_pct)==null?-9:x.CP_pct) - f.CP_pct) < 0.05 &&
+        Math.abs((num(x.NDF_pct)==null?-9:x.NDF_pct) - f.NDF_pct) < 0.05);
+    if (!hit.length) return null;
+    const pens = [...new Set(hit.map(x=>pen(x.pen)))].sort();
+    const mons = [...new Set(hit.map(x=>x.month))].sort();
+    return {pens:pens, from:mons[0], to:mons[mons.length-1]}; };
+
+  tableCard({wide:true, title:'Ration analysis from the laboratory, and which pens were fed it',
+    note:'Four reports, two rounds, seven months. That is the whole of it — the CP and NDF in every pen table hold at whatever the last '
+      + 'round measured and cannot move between rounds. Read against the raw reports, every figure here matches to the decimal. '
+      + 'The last column is the finding: matching each report to the pens carrying its numbers shows the two rounds land on opposite '
+      + 'groups. In January the high-yield pens were fed the 18.5% formula and pen 3 the 14.8% one, which is the right way round. From '
+      + 'May they swap: the high-yield pens are on 13.6% while pen 3, the lowest-producing group, is on 15.1%. The best cows are being '
+      + 'given less protein than the worst, and it starts in the same month the protein balance on the card above turns negative. '
+      + 'Either the two May reports were assigned to the wrong pens in the workbook, or the ration really was swapped — the farm has to '
+      + 'settle which before anything here is acted on. Pen 2 in March and April carries CP 15.2 and NDF 57.3, which matches no report '
+      + 'at all.'},
+    DS.table(['Report no.','Collected','Sample','Moisture %','CP %','NDF %','ADF %','Ash %','Fed to','Months'],
+      D.feedlab.map(f=>{ const t = fedTo(f);
+        return [f.report_no||'—', f.collected_date||'—', DS.esc(String(f.sample||'—')),
         DS.fmt(num(f.moisture_pct),1), DS.fmt(num(f.CP_pct),1), DS.fmt(num(f.NDF_pct),1),
-        DS.fmt(num(f.ADF_pct),1), DS.fmt(num(f.ash_pct),1)])));
+        DS.fmt(num(f.ADF_pct),1), DS.fmt(num(f.ash_pct),1),
+        t ? '<b>'+t.pens.join(', ')+'</b>' : '<span class="ds-warntext">no pen carries these</span>',
+        t ? ml(t.from)+' to '+ml(t.to) : '—'];})));
 }
 
 /* ════════════════ Reproduction ════════════════ */
