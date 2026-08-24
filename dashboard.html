@@ -2253,10 +2253,15 @@ function tabFd(){
       + 'for its date header, and the second block sits six rows below the header the first one shares, so it was skipped in silence — '
       + '4 rows survived out of 68. That is fixed in build_prateung_master.py and the readings are back, which is what makes the choice '
       + 'above possible. The low-yield ration has no reading after April.',
-    legend: DS.legend('sieve', SIEVE.map(L=>({color:L.color, name:L.lab+' ('+L.lo+'\u2013'+L.hi+'%)'}))),
+    /* A stack draws its first series at the bottom, so the screens go in reversed:
+       bottom pan at the bottom, top screen on top, the way the sieves actually sit.
+       The legend keeps the reading order — coarsest first — and carries its own
+       index so the toggles still line up with the reversed series. */
+    legend: DS.legend('sieve', SIEVE.map((L,k)=>({color:L.color, i:SIEVE.length-1-k,
+      name:L.lab+' ('+L.lo+'\u2013'+L.hi+'%)'}))),
     views: TMRV.map(v=>v[1]), view: tmrView,
     onView: i => { if (i === tmrView) return; tmrView = i; const y = scrollY; paint(); scrollTo(0, y); },
-  }, p => DS.stack(p, SM.map(yml), SIEVE.map(L=>({name:L.lab, color:L.color, data:SM.map(ym=>sg(ym,L.k))})),
+  }, p => DS.stack(p, SM.map(yml), SIEVE.slice().reverse().map(L=>({name:L.lab, color:L.color, data:SM.map(ym=>sg(ym,L.k))})),
       /* the top screen is the diagnostic one, so it is the number on the bar */
       /* the four screens are a composition and always sum to 100, so the axis is
          pinned there rather than left to find its own top */
