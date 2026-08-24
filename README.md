@@ -63,6 +63,12 @@ loads them in a frame rather than inlining them. Each also works on its own URL:
 `legacy.html`, `dashboard.html`. Linking to `#current` opens the shell on the current
 dashboard, `#legacy` on the legacy one.
 
+The frame URL carries a `?v=` stamp — a hash of the file it points at, rewritten on every
+deploy. Both dashboards are republished at the same filenames and Pages serves HTML with a
+ten-minute max-age, so without it a browser holding the old copy goes on showing it, and
+inside a frame there is nothing for the reader to reload. The stamp changes when the file
+changes and never otherwise, so an unchanged file still comes from cache.
+
 ## Where the numbers come from
 
 Everything derives from `master/Prateung_Farm_2569_Master.xlsx`, which is rebuilt from the

@@ -78,7 +78,8 @@ iframe{position:absolute; inset:0; width:100%; height:100%; border:0; display:bl
 </header>
 
 <div class="frame">
-  <iframe id="view" title="Legacy v7.4" src="legacy.html"></iframe>
+  <!-- src is set by the script below, which appends the cache stamp -->
+  <iframe id="view" title="Legacy v7.4"></iframe>
 </div>
 
 <script>
@@ -89,6 +90,15 @@ var VIEWS = {
 };
 var DEFAULT = 'legacy';
 
+/* Both dashboards are republished at the same two filenames, and GitHub Pages
+   serves HTML with a ten-minute max-age. A browser holding either one keeps
+   showing it after an update -- inside a frame there is nothing for the reader
+   to reload, so the page looks simply out of date with no way to tell. The stamp
+   is a hash of each file's own contents, rewritten by publish.py on every
+   deploy, so the URL changes exactly when the file does and never otherwise. */
+var STAMP = {'legacy.html':'f19ecf3', 'dashboard.html':'cdc94f5'};
+function url(f){ return f + (STAMP[f] ? '?v=' + STAMP[f] : ''); }
+
 var frame = document.getElementById('view');
 var open  = document.getElementById('open');
 var tabs  = [].slice.call(document.querySelectorAll('.tab'));
@@ -98,9 +108,10 @@ function show(key, push) {
      or the content loads correctly while no tab shows as selected */
   if (!VIEWS[key]) key = DEFAULT;
   var v = VIEWS[key];
-  if (frame.getAttribute('src') !== v.file) frame.setAttribute('src', v.file);
+  var u = url(v.file);
+  if (frame.getAttribute('src') !== u) frame.setAttribute('src', u);
   frame.setAttribute('title', v.title);
-  open.setAttribute('href', v.file);
+  open.setAttribute('href', u);
   tabs.forEach(function (t) { t.setAttribute('aria-selected', t.dataset.view === key ? 'true' : 'false'); });
   document.title = v.doc;
   if (push && location.hash.slice(1) !== key) location.hash = key;
@@ -112,7 +123,7 @@ tabs.forEach(function (t) {
 
 /* the hash makes each version linkable and survives a reload */
 window.addEventListener('hashchange', function () { show(location.hash.slice(1) || DEFAULT, false); });
-show(location.hash.slice(1), false);
+show(location.hash.slice(1), false);   /* also what first sets the frame src */
 </script>
 
 </body>
